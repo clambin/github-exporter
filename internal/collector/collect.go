@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/clambin/github-exporter/internal/github"
 	"github.com/prometheus/client_golang/prometheus"
+	"strings"
 )
 
 var _ prometheus.Collector = &Collector{}
@@ -20,25 +21,25 @@ var metrics = map[string]*prometheus.Desc{
 	"stars": prometheus.NewDesc(
 		prometheus.BuildFQName("github", "monitor", "stars"),
 		"Total number of stars",
-		[]string{"repo", "archived"},
+		[]string{"repo", "user", "archived", "fork", "private"},
 		nil,
 	),
 	"issues": prometheus.NewDesc(
 		prometheus.BuildFQName("github", "monitor", "issues"),
 		"Total number of open issues",
-		[]string{"repo", "archived"},
+		[]string{"repo", "user", "archived", "fork", "private"},
 		nil,
 	),
 	"pulls": prometheus.NewDesc(
 		prometheus.BuildFQName("github", "monitor", "pulls"),
 		"Total number of open pull requests",
-		[]string{"repo", "archived"},
+		[]string{"repo", "user", "archived", "fork", "private"},
 		nil,
 	),
 	"forks": prometheus.NewDesc(
 		prometheus.BuildFQName("github", "monitor", "forks"),
 		"Total number of forks",
-		[]string{"repo", "archived"},
+		[]string{"repo", "user", "archived", "fork", "private"},
 		nil,
 	),
 }
@@ -58,18 +59,13 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, repo := range repos {
-		var archived string
-		if repo.Archived {
-			if !c.IncludeArchived {
-				continue
-			}
-			archived = "true"
-		} else {
-			archived = "false"
+		if !c.IncludeArchived && !repo.Archived {
+			continue
 		}
+		user, archived, fork, private := analyzeRepo(repo)
 
-		ch <- prometheus.MustNewConstMetric(metrics["stars"], prometheus.GaugeValue, float64(repo.StargazersCount), repo.FullName, archived)
-		ch <- prometheus.MustNewConstMetric(metrics["forks"], prometheus.GaugeValue, float64(repo.ForksCount), repo.FullName, archived)
+		ch <- prometheus.MustNewConstMetric(metrics["stars"], prometheus.GaugeValue, float64(repo.StargazersCount), repo.FullName, user, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["forks"], prometheus.GaugeValue, float64(repo.ForksCount), repo.FullName, user, archived, fork, private)
 
 		pullRequests, err := c.Client.GetPullRequests(ctx, repo.FullName)
 		if err != nil {
@@ -77,8 +73,8 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 			return
 		}
 
-		ch <- prometheus.MustNewConstMetric(metrics["pulls"], prometheus.GaugeValue, float64(len(pullRequests)), repo.FullName, archived)
-		ch <- prometheus.MustNewConstMetric(metrics["issues"], prometheus.GaugeValue, float64(repo.OpenIssuesCount-len(pullRequests)), repo.FullName, archived)
+		ch <- prometheus.MustNewConstMetric(metrics["pulls"], prometheus.GaugeValue, float64(len(pullRequests)), repo.FullName, user, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["issues"], prometheus.GaugeValue, float64(repo.OpenIssuesCount-len(pullRequests)), repo.FullName, user, archived, fork, private)
 	}
 }
 
@@ -102,4 +98,20 @@ func (c Collector) getAllRepos(ctx context.Context) ([]github.Repo, error) {
 	}
 
 	return repos, nil
+}
+
+func analyzeRepo(repo github.Repo) (user, archived, fork, private string) {
+	if parts := strings.Split(repo.FullName, "/"); len(parts) == 2 {
+		user = parts[0]
+	} else {
+		user = "unknown"
+	}
+	return user, bool2string(repo.Archived), bool2string(repo.Fork), bool2string(repo.Private)
+}
+
+func bool2string(val bool) string {
+	if val {
+		return "true"
+	}
+	return "false"
 }
