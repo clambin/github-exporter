@@ -59,7 +59,7 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, repo := range repos {
-		if !c.IncludeArchived && !repo.Archived {
+		if !c.IncludeArchived && repo.Archived {
 			continue
 		}
 		user, archived, fork, private := analyzeRepo(repo)
