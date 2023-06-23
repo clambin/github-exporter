@@ -37,12 +37,16 @@ func main() {
 }
 
 func Main(_ *cobra.Command, _ []string) {
+	tp := httpclient.NewRoundTripper(
+		httpclient.WithCache(httpclient.DefaultCacheTable, time.Hour, 24*time.Hour),
+		httpclient.WithMetrics("github", "", "http"),
+	)
 	c := collector.Collector{
 		Users: viper.GetStringSlice("repos.user"),
 		Repos: viper.GetStringSlice("repos.repo"),
-		Client: github.Client{
+		Client: &github.Client{
 			HTTPClient: &http.Client{
-				Transport: httpclient.NewRoundTripper(httpclient.WithCache(httpclient.DefaultCacheTable, time.Hour, 24*time.Hour)),
+				Transport: tp,
 				Timeout:   10 * time.Second,
 			},
 			Token: viper.GetString("git.token"),
@@ -50,6 +54,7 @@ func Main(_ *cobra.Command, _ []string) {
 		IncludeArchived: viper.GetBool("repos.archived"),
 	}
 
+	prometheus.MustRegister(tp)
 	prometheus.MustRegister(c)
 
 	http.Handle("/metrics", promhttp.Handler())

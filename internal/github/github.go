@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"github.com/tomnomnom/linkheader"
 	"io"
 	"net/http"
@@ -24,40 +24,45 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 	return c.HTTPClient.Do(req)
 }
 
+func doOnePage[T any](ctx context.Context, c *Client, url string) ([]T, string, error) {
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+
+	resp, err := c.do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, "", errors.New(resp.Status)
+	}
+
+	var next string
+	links := resp.Header.Get("Link")
+	if nextLinks := linkheader.Parse(links).FilterByRel("next"); len(nextLinks) > 0 {
+		next = nextLinks[0].URL
+	}
+
+	var r []T
+	body, err := io.ReadAll(resp.Body)
+	if err == nil {
+		err = json.Unmarshal(body, &r)
+	}
+
+	return r, next, err
+}
+
 func doAllPages[T any](ctx context.Context, c *Client, url string) ([]T, error) {
-	var result []T
-
+	var result, page []T
+	var err error
 	for {
-		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-
-		resp, err := c.do(req)
-		if err != nil {
-			return nil, err
-		}
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf(resp.Status)
+		if page, url, err = doOnePage[T](ctx, c, url); err == nil {
+			result = append(result, page...)
 		}
 
-		var r []T
-		body, err := io.ReadAll(resp.Body)
-		if err == nil {
-			err = json.Unmarshal(body, &r)
-		}
-		if err == nil {
-			result = append(result, r...)
-		} else {
-			return nil, err
-		}
-
-		links := resp.Header.Get("Link")
-		next := linkheader.Parse(links).FilterByRel("next")
-		if len(next) == 0 {
+		if err != nil || url == "" {
 			break
 		}
-
-		url = next[0].URL
 	}
 	return result, nil
 }
