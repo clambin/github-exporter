@@ -2,7 +2,7 @@ package collector
 
 import (
 	"context"
-	"github.com/clambin/github-exporter/internal/github"
+	github2 "github.com/clambin/github-exporter/pkg/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/exp/slog"
 )
@@ -11,9 +11,9 @@ var _ prometheus.Collector = &Collector{}
 
 //go:generate mockery --name GitHubClient
 type GitHubClient interface {
-	GetUserRepos(context.Context, string) ([]github.Repo, error)
-	GetRepo(context.Context, string) (github.Repo, error)
-	GetPullRequests(context.Context, string) ([]github.PullRequest, error)
+	GetUserRepos(context.Context, string) ([]github2.Repo, error)
+	GetRepo(context.Context, string) (github2.Repo, error)
+	GetPullRequests(context.Context, string) ([]github2.PullRequest, error)
 }
 
 type Collector struct {
@@ -65,14 +65,14 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, entry := range stats {
-		archived := bool2string(entry.repo.Archived)
-		fork := bool2string(entry.repo.Fork)
-		private := bool2string(entry.repo.Private)
+		archived := bool2string(entry.Repo.Archived)
+		fork := bool2string(entry.Repo.Fork)
+		private := bool2string(entry.Repo.Private)
 
-		ch <- prometheus.MustNewConstMetric(metrics["stars"], prometheus.GaugeValue, float64(entry.repo.StargazersCount), entry.repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["forks"], prometheus.GaugeValue, float64(entry.repo.ForksCount), entry.repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["issues"], prometheus.GaugeValue, float64(entry.repo.OpenIssuesCount), entry.repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["pulls"], prometheus.GaugeValue, float64(entry.prs), entry.repo.FullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["stars"], prometheus.GaugeValue, float64(entry.Repo.StargazersCount), entry.Repo.FullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["forks"], prometheus.GaugeValue, float64(entry.Repo.ForksCount), entry.Repo.FullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["issues"], prometheus.GaugeValue, float64(entry.Repo.OpenIssuesCount), entry.Repo.FullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["pulls"], prometheus.GaugeValue, float64(entry.pullRequestCount), entry.Repo.FullName, archived, fork, private)
 	}
 }
 

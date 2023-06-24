@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/clambin/github-exporter/internal/collector"
-	"github.com/clambin/github-exporter/internal/github"
+	"github.com/clambin/github-exporter/pkg/github"
 	"github.com/clambin/go-common/httpclient"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -39,7 +39,7 @@ func main() {
 func Main(_ *cobra.Command, _ []string) {
 	tp := httpclient.NewRoundTripper(
 		httpclient.WithCache(httpclient.DefaultCacheTable, time.Hour, 24*time.Hour),
-		httpclient.WithMetrics("github", "", "http"),
+		httpclient.WithMetrics("github", "", ""),
 	)
 	c := collector.Collector{
 		Users: viper.GetStringSlice("repos.user"),

@@ -25,7 +25,7 @@ func TestClient_GetRepos(t *testing.T) {
 	assert.Len(t, repos, 30)
 }
 
-func TestClient_GetMetrics(t *testing.T) {
+func TestClient_GetRepo(t *testing.T) {
 	c := Client{
 		HTTPClient: &http.Client{
 			Transport: &transport{path.Join("testdata", "repo.json")},
@@ -40,7 +40,7 @@ func TestClient_GetMetrics(t *testing.T) {
 	assert.Equal(t, "public", repo.Visibility)
 }
 
-func TestClient_GetPulls(t *testing.T) {
+func TestClient_GetPullRequests(t *testing.T) {
 	c := Client{
 		HTTPClient: &http.Client{
 			Transport: &transport{path.Join("testdata", "pulls.json")},
@@ -50,25 +50,6 @@ func TestClient_GetPulls(t *testing.T) {
 	pulls, err := c.GetPullRequests(ctx, "githubexporter/github-exporter")
 	require.NoError(t, err)
 	assert.Len(t, pulls, 10)
-}
-
-func TestClient_GetIssues(t *testing.T) {
-	c := Client{
-		HTTPClient: &http.Client{
-			Transport: &transport{path.Join("testdata", "issues.json")},
-		},
-	}
-	ctx := context.Background()
-	issues, err := c.GetIssues(ctx, "githubexporter/github-exporter")
-	require.NoError(t, err)
-	//assert.Len(t, issues, 24)
-	var count int
-	for _, issue := range issues {
-		if issue.PullRequest.Url == "" {
-			count++
-		}
-	}
-	t.Log(count)
 }
 
 type transport struct {

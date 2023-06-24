@@ -4,8 +4,8 @@ package mocks
 
 import (
 	context "context"
+	github2 "github.com/clambin/github-exporter/pkg/github"
 
-	github "github.com/clambin/github-exporter/internal/github"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,19 +15,19 @@ type GitHubClient struct {
 }
 
 // GetPullRequests provides a mock function with given fields: _a0, _a1
-func (_m *GitHubClient) GetPullRequests(_a0 context.Context, _a1 string) ([]github.PullRequest, error) {
+func (_m *GitHubClient) GetPullRequests(_a0 context.Context, _a1 string) ([]github2.PullRequest, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 []github.PullRequest
+	var r0 []github2.PullRequest
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]github.PullRequest, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]github2.PullRequest, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []github.PullRequest); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) []github2.PullRequest); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]github.PullRequest)
+			r0 = ret.Get(0).([]github2.PullRequest)
 		}
 	}
 
@@ -41,18 +41,18 @@ func (_m *GitHubClient) GetPullRequests(_a0 context.Context, _a1 string) ([]gith
 }
 
 // GetRepo provides a mock function with given fields: _a0, _a1
-func (_m *GitHubClient) GetRepo(_a0 context.Context, _a1 string) (github.Repo, error) {
+func (_m *GitHubClient) GetRepo(_a0 context.Context, _a1 string) (github2.Repo, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 github.Repo
+	var r0 github2.Repo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (github.Repo, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (github2.Repo, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) github.Repo); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) github2.Repo); ok {
 		r0 = rf(_a0, _a1)
 	} else {
-		r0 = ret.Get(0).(github.Repo)
+		r0 = ret.Get(0).(github2.Repo)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -65,19 +65,19 @@ func (_m *GitHubClient) GetRepo(_a0 context.Context, _a1 string) (github.Repo, e
 }
 
 // GetUserRepos provides a mock function with given fields: _a0, _a1
-func (_m *GitHubClient) GetUserRepos(_a0 context.Context, _a1 string) ([]github.Repo, error) {
+func (_m *GitHubClient) GetUserRepos(_a0 context.Context, _a1 string) ([]github2.Repo, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 []github.Repo
+	var r0 []github2.Repo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]github.Repo, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]github2.Repo, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []github.Repo); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) []github2.Repo); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]github.Repo)
+			r0 = ret.Get(0).([]github2.Repo)
 		}
 	}
 

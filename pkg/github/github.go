@@ -64,5 +64,5 @@ func doAllPages[T any](ctx context.Context, c *Client, url string) ([]T, error) 
 			break
 		}
 	}
-	return result, nil
+	return result, err
 }

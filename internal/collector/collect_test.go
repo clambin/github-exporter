@@ -2,8 +2,9 @@ package collector
 
 import (
 	"bytes"
+	"errors"
 	"github.com/clambin/github-exporter/internal/collector/mocks"
-	"github.com/clambin/github-exporter/internal/github"
+	github2 "github.com/clambin/github-exporter/pkg/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
@@ -41,11 +42,24 @@ github_monitor_stars{archived="false",fork="false",private="false",repo="foo/bar
 	assert.NoError(t, testutil.GatherAndCompare(r, buf))
 }
 
+func TestCollector_Collect_Failure(t *testing.T) {
+	client := mocks.NewGitHubClient(t)
+	client.On("GetUserRepos", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("string")).Return(nil, errors.New("failure"))
+
+	c := Collector{Client: client, Users: []string{"clambin"}}
+
+	r := prometheus.NewPedanticRegistry()
+	r.MustRegister(&c)
+
+	_, err := r.Gather()
+	assert.Error(t, err)
+}
+
 func makeTestClient(t *testing.T) GitHubClient {
 	client := mocks.NewGitHubClient(t)
 	client.
 		On("GetUserRepos", mock.AnythingOfType("*context.emptyCtx"), "clambin").
-		Return([]github.Repo{
+		Return([]github2.Repo{
 			{
 				FullName:        "clambin/mediamon",
 				StargazersCount: 10,
@@ -68,7 +82,7 @@ func makeTestClient(t *testing.T) GitHubClient {
 		}, nil)
 	client.
 		On("GetRepo", mock.AnythingOfType("*context.emptyCtx"), "foo/bar").
-		Return(github.Repo{
+		Return(github2.Repo{
 			FullName:        "foo/bar",
 			StargazersCount: 1000,
 			ForksCount:      500,
@@ -76,7 +90,7 @@ func makeTestClient(t *testing.T) GitHubClient {
 		}, nil)
 	client.
 		On("GetPullRequests", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("string")).
-		Return([]github.PullRequest{{}}, nil)
+		Return([]github2.PullRequest{{}}, nil)
 
 	return client
 }
