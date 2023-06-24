@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"fmt"
 	"github.com/clambin/github-exporter/pkg/github"
 	"golang.org/x/sync/semaphore"
 )
@@ -23,15 +24,19 @@ func (c Collector) getStats() ([]repoStats, error) {
 	ch := make(chan repoStatResponse)
 	go c.queryAllRepoStats(ctx, ch)
 
+	var err error
 	var stats []repoStats
 	for resp := range ch {
 		if resp.err != nil {
-			return nil, resp.err
+			err = fmt.Errorf("get repo stats: %w", resp.err)
 		}
 		if resp.stats.Repo.Archived && !c.IncludeArchived {
 			continue
 		}
 		stats = append(stats, resp.stats)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	ch = make(chan repoStatResponse)
@@ -39,11 +44,11 @@ func (c Collector) getStats() ([]repoStats, error) {
 	stats = make([]repoStats, 0, len(stats))
 	for resp := range ch {
 		if resp.err != nil {
-			return nil, resp.err
+			err = fmt.Errorf("get repo pr's: %w", resp.err)
 		}
 		stats = append(stats, resp.stats)
 	}
-	return stats, nil
+	return stats, err
 }
 
 func (c Collector) queryAllRepoStats(ctx context.Context, ch chan repoStatResponse) {
