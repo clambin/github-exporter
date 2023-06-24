@@ -19,16 +19,17 @@ type repoStatResponse struct {
 
 const maxParallel = 20
 
-func (c Collector) getStats() ([]repoStats, error) {
+func (c Collector) getStats(ch chan repoStatResponse) {
 	ctx := context.Background()
-	ch := make(chan repoStatResponse)
-	go c.queryAllRepoStats(ctx, ch)
+	repos := make(chan repoStatResponse)
+	go c.queryAllRepoStats(ctx, repos)
 
-	var err error
 	var stats []repoStats
-	for resp := range ch {
+	var err error
+
+	for resp := range repos {
 		if resp.err != nil {
-			err = fmt.Errorf("get repo stats: %w", resp.err)
+			err = resp.err
 		}
 		if resp.stats.Repo.Archived && !c.IncludeArchived {
 			continue
@@ -36,19 +37,12 @@ func (c Collector) getStats() ([]repoStats, error) {
 		stats = append(stats, resp.stats)
 	}
 	if err != nil {
-		return nil, err
+		ch <- repoStatResponse{err: fmt.Errorf("get repo stats: %w", err)}
+		close(ch)
+		return
 	}
 
-	ch = make(chan repoStatResponse)
-	go c.getPRs(ctx, stats, ch)
-	stats = make([]repoStats, 0, len(stats))
-	for resp := range ch {
-		if resp.err != nil {
-			err = fmt.Errorf("get repo pr's: %w", resp.err)
-		}
-		stats = append(stats, resp.stats)
-	}
-	return stats, err
+	c.getPRs(ctx, stats, ch)
 }
 
 func (c Collector) queryAllRepoStats(ctx context.Context, ch chan repoStatResponse) {
@@ -104,10 +98,13 @@ func (c Collector) getPRs(ctx context.Context, stats []repoStats, ch chan repoSt
 				ch <- repoStatResponse{err: err}
 				return
 			}
-			entry.Repo.OpenIssuesCount -= len(pullRequests)
+
+			pullRequestCount := len(pullRequests)
+			entry.Repo.OpenIssuesCount -= pullRequestCount
+
 			ch <- repoStatResponse{stats: repoStats{
 				Repo:             entry.Repo,
-				pullRequestCount: len(pullRequests),
+				pullRequestCount: pullRequestCount,
 			}}
 			parallel.Release(1)
 		}(entry)

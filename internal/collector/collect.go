@@ -57,22 +57,24 @@ func (c Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c Collector) Collect(ch chan<- prometheus.Metric) {
-	stats, err := c.getStats()
-	if err != nil {
-		slog.Error("failed to collect github statistics", "err", err)
-		ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("github_monitor_error", "Error getting github statistics", nil, nil), err)
-		return
-	}
+	ch2 := make(chan repoStatResponse)
+	go c.getStats(ch2)
 
-	for _, entry := range stats {
-		archived := bool2string(entry.Repo.Archived)
-		fork := bool2string(entry.Repo.Fork)
-		private := bool2string(entry.Repo.Private)
+	for entry := range ch2 {
+		if entry.err != nil {
+			slog.Error("failed to collect github statistics", "err", entry.err)
+			ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("github_monitor_error", "Error getting github statistics", nil, nil), entry.err)
+			//return
+			continue
+		}
+		archived := bool2string(entry.stats.Repo.Archived)
+		fork := bool2string(entry.stats.Repo.Fork)
+		private := bool2string(entry.stats.Repo.Private)
 
-		ch <- prometheus.MustNewConstMetric(metrics["stars"], prometheus.GaugeValue, float64(entry.Repo.StargazersCount), entry.Repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["forks"], prometheus.GaugeValue, float64(entry.Repo.ForksCount), entry.Repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["issues"], prometheus.GaugeValue, float64(entry.Repo.OpenIssuesCount), entry.Repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["pulls"], prometheus.GaugeValue, float64(entry.pullRequestCount), entry.Repo.FullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["stars"], prometheus.GaugeValue, float64(entry.stats.Repo.StargazersCount), entry.stats.Repo.FullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["forks"], prometheus.GaugeValue, float64(entry.stats.Repo.ForksCount), entry.stats.Repo.FullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["issues"], prometheus.GaugeValue, float64(entry.stats.Repo.OpenIssuesCount), entry.stats.Repo.FullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["pulls"], prometheus.GaugeValue, float64(entry.stats.pullRequestCount), entry.stats.Repo.FullName, archived, fork, private)
 	}
 }
 
