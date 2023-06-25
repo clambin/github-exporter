@@ -1,26 +1,14 @@
 package collector
 
 import (
-	"context"
-	github2 "github.com/clambin/github-exporter/pkg/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/exp/slog"
 )
 
 var _ prometheus.Collector = &Collector{}
 
-//go:generate mockery --name GitHubClient
-type GitHubClient interface {
-	GetUserRepos(context.Context, string) ([]github2.Repo, error)
-	GetRepo(context.Context, string) (github2.Repo, error)
-	GetPullRequests(context.Context, string) ([]github2.PullRequest, error)
-}
-
 type Collector struct {
-	Client          GitHubClient
-	Users           []string
-	Repos           []string
-	IncludeArchived bool
+	Cacher
 }
 
 var metrics = map[string]*prometheus.Desc{
@@ -50,30 +38,32 @@ var metrics = map[string]*prometheus.Desc{
 	),
 }
 
-func (c Collector) Describe(ch chan<- *prometheus.Desc) {
+func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	for _, metric := range metrics {
 		ch <- metric
 	}
 }
 
-func (c Collector) Collect(ch chan<- prometheus.Metric) {
-	ch2 := make(chan repoStatResponse)
-	go c.getStats(ch2)
+func (c *Collector) Collect(ch chan<- prometheus.Metric) {
+	stats, err := c.Cacher.Get()
 
-	for entry := range ch2 {
-		if entry.err != nil {
-			slog.Error("failed to collect github statistics", "err", entry.err)
-			ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("github_monitor_error", "Error getting github statistics", nil, nil), entry.err)
-			continue
-		}
-		archived := bool2string(entry.stats.Repo.Archived)
-		fork := bool2string(entry.stats.Repo.Fork)
-		private := bool2string(entry.stats.Repo.Private)
+	if err != nil {
+		slog.Error("failed to collect github statistics", "err", err)
+		ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("github_monitor_error", "Error getting github statistics", nil, nil), err)
+		return
+	}
 
-		ch <- prometheus.MustNewConstMetric(metrics["stars"], prometheus.GaugeValue, float64(entry.stats.Repo.StargazersCount), entry.stats.Repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["forks"], prometheus.GaugeValue, float64(entry.stats.Repo.ForksCount), entry.stats.Repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["issues"], prometheus.GaugeValue, float64(entry.stats.Repo.OpenIssuesCount), entry.stats.Repo.FullName, archived, fork, private)
-		ch <- prometheus.MustNewConstMetric(metrics["pulls"], prometheus.GaugeValue, float64(entry.stats.pullRequestCount), entry.stats.Repo.FullName, archived, fork, private)
+	for _, entry := range stats {
+
+		fullName := entry.Repository.GetFullName()
+		archived := bool2string(entry.Repository.GetArchived())
+		fork := bool2string(entry.Repository.GetFork())
+		private := bool2string(entry.Repository.GetPrivate())
+
+		ch <- prometheus.MustNewConstMetric(metrics["stars"], prometheus.GaugeValue, float64(entry.Repository.GetStargazersCount()), fullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["forks"], prometheus.GaugeValue, float64(entry.Repository.GetForksCount()), fullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["issues"], prometheus.GaugeValue, float64(entry.Repository.GetOpenIssuesCount()), fullName, archived, fork, private)
+		ch <- prometheus.MustNewConstMetric(metrics["pulls"], prometheus.GaugeValue, float64(entry.PullRequestCount), fullName, archived, fork, private)
 	}
 }
 

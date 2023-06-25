@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"github.com/clambin/github-exporter/internal/collector"
-	"github.com/clambin/github-exporter/pkg/github"
+	"github.com/clambin/github-exporter/internal/collector/client"
 	"github.com/clambin/go-common/httpclient"
+	"github.com/google/go-github/v53/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slog"
+	"golang.org/x/oauth2"
 	"net/http"
 	"os"
 	"time"
@@ -37,25 +40,31 @@ func main() {
 }
 
 func Main(_ *cobra.Command, _ []string) {
-	tp := httpclient.NewRoundTripper(
-		httpclient.WithCache(httpclient.DefaultCacheTable, time.Hour, 24*time.Hour),
-		httpclient.WithMetrics("github", "", ""),
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: viper.GetString("git.token")},
 	)
+	tc := oauth2.NewClient(ctx, ts)
+
+	tp := httpclient.NewRoundTripper(
+		httpclient.WithMetrics("github", "", ""),
+		httpclient.WithRoundTripper(tc.Transport),
+	)
+
 	c := collector.Collector{
-		Users: viper.GetStringSlice("repos.user"),
-		Repos: viper.GetStringSlice("repos.repo"),
-		Client: &github.Client{
-			HTTPClient: &http.Client{
-				Transport: tp,
-				Timeout:   10 * time.Second,
+		Cacher: collector.Cacher{
+			Client: &client.Client{
+				Client: github.NewClient(&http.Client{Transport: tp}),
 			},
-			Token: viper.GetString("git.token"),
+			Users:           viper.GetStringSlice("repos.user"),
+			Repos:           viper.GetStringSlice("repos.repo"),
+			IncludeArchived: viper.GetBool("repos.archived"),
+			Lifetime:        time.Hour,
 		},
-		IncludeArchived: viper.GetBool("repos.archived"),
 	}
 
 	prometheus.MustRegister(tp)
-	prometheus.MustRegister(c)
+	prometheus.MustRegister(&c)
 
 	http.Handle("/metrics", promhttp.Handler())
 	_ = http.ListenAndServe(":9090", nil)

@@ -4,21 +4,30 @@ import (
 	"bytes"
 	"errors"
 	"github.com/clambin/github-exporter/internal/collector/mocks"
-	github2 "github.com/clambin/github-exporter/pkg/github"
+	"github.com/google/go-github/v53/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
+	"time"
 )
 
 func TestCollector_Collect(t *testing.T) {
-	c := Collector{Client: makeTestClient(t), Users: []string{"clambin"}, Repos: []string{"foo/bar"}}
+	c := Collector{
+		Cacher{
+			Client:          makeTestClient(t),
+			Users:           []string{"clambin"},
+			Repos:           []string{"foo/bar"},
+			IncludeArchived: false,
+			Lifetime:        time.Hour,
+		},
+	}
 
 	r := prometheus.NewPedanticRegistry()
 	r.MustRegister(&c)
 
-	buf := bytes.NewBufferString(`# HELP github_monitor_forks Total number of forks
+	expected := `# HELP github_monitor_forks Total number of forks
 # TYPE github_monitor_forks gauge
 github_monitor_forks{archived="false",fork="false",private="false",repo="clambin/github-exporter"} 50
 github_monitor_forks{archived="false",fork="false",private="false",repo="clambin/mediamon"} 5
@@ -38,16 +47,21 @@ github_monitor_pulls{archived="false",fork="false",private="false",repo="foo/bar
 github_monitor_stars{archived="false",fork="false",private="false",repo="clambin/github-exporter"} 100
 github_monitor_stars{archived="false",fork="false",private="false",repo="clambin/mediamon"} 10
 github_monitor_stars{archived="false",fork="false",private="false",repo="foo/bar"} 1000
-`)
-	assert.NoError(t, testutil.GatherAndCompare(r, buf))
+`
+	assert.NoError(t, testutil.GatherAndCompare(r, bytes.NewBufferString(expected)))
+	assert.NoError(t, testutil.GatherAndCompare(r, bytes.NewBufferString(expected)))
 }
 
 func TestCollector_Collect_Failure(t *testing.T) {
 	client := mocks.NewGitHubClient(t)
 	client.On("GetUserRepos", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("string")).Return(nil, errors.New("failure"))
 
-	c := Collector{Client: client, Users: []string{"clambin"}}
-
+	c := Collector{
+		Cacher{
+			Client: client,
+			Users:  []string{"clambin"},
+		},
+	}
 	r := prometheus.NewPedanticRegistry()
 	r.MustRegister(&c)
 
@@ -56,41 +70,78 @@ func TestCollector_Collect_Failure(t *testing.T) {
 }
 
 func makeTestClient(t *testing.T) GitHubClient {
+	repos := []struct {
+		fullname string
+		archived bool
+		stars    int
+		forks    int
+		issues   int
+	}{
+		{
+			fullname: "clambin/mediamon",
+			stars:    10,
+			forks:    5,
+			issues:   9,
+		},
+		{
+			fullname: "clambin/github-exporter",
+			stars:    100,
+			forks:    50,
+			issues:   90,
+		},
+		{
+			fullname: "clambin/snafu",
+			archived: true,
+			stars:    100,
+			forks:    50,
+			issues:   90,
+		},
+		{
+			fullname: "foo/bar",
+			stars:    1000,
+			forks:    500,
+			issues:   900,
+		},
+	}
+
 	client := mocks.NewGitHubClient(t)
 	client.
 		On("GetUserRepos", mock.AnythingOfType("*context.emptyCtx"), "clambin").
-		Return([]github2.Repo{
+		Return([]*github.Repository{
 			{
-				FullName:        "clambin/mediamon",
-				StargazersCount: 10,
-				ForksCount:      5,
-				OpenIssuesCount: 9,
+				FullName:        &repos[0].fullname,
+				Archived:        &repos[0].archived,
+				StargazersCount: &repos[0].stars,
+				ForksCount:      &repos[0].forks,
+				OpenIssuesCount: &repos[0].issues,
 			},
 			{
-				FullName:        "clambin/github-exporter",
-				StargazersCount: 100,
-				ForksCount:      50,
-				OpenIssuesCount: 90,
+				FullName:        &repos[1].fullname,
+				Archived:        &repos[1].archived,
+				StargazersCount: &repos[1].stars,
+				ForksCount:      &repos[1].forks,
+				OpenIssuesCount: &repos[1].issues,
 			},
 			{
-				FullName:        "clambin/snafu",
-				Archived:        true,
-				StargazersCount: 100,
-				ForksCount:      50,
-				OpenIssuesCount: 90,
+				FullName:        &repos[2].fullname,
+				Archived:        &repos[2].archived,
+				StargazersCount: &repos[2].stars,
+				ForksCount:      &repos[2].forks,
+				OpenIssuesCount: &repos[2].issues,
 			},
 		}, nil)
 	client.
 		On("GetRepo", mock.AnythingOfType("*context.emptyCtx"), "foo/bar").
-		Return(github2.Repo{
-			FullName:        "foo/bar",
-			StargazersCount: 1000,
-			ForksCount:      500,
-			OpenIssuesCount: 900,
+		Return(&github.Repository{
+			FullName:        &repos[3].fullname,
+			Archived:        &repos[3].archived,
+			StargazersCount: &repos[3].stars,
+			ForksCount:      &repos[3].forks,
+			OpenIssuesCount: &repos[3].issues,
 		}, nil)
 	client.
 		On("GetPullRequests", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("string")).
-		Return([]github2.PullRequest{{}}, nil)
+		Return([]*github.PullRequest{{}}, nil)
 
 	return client
 }
