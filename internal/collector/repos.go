@@ -96,16 +96,17 @@ func (c Collector) getPRs(ctx context.Context, stats []repoStats, ch chan repoSt
 			pullRequests, err := c.Client.GetPullRequests(ctx, entry.Repo.FullName)
 			if err != nil {
 				ch <- repoStatResponse{err: fmt.Errorf("get pr stats: %w", err)}
-				return
+				//return
+			} else {
+
+				pullRequestCount := len(pullRequests)
+				entry.Repo.OpenIssuesCount -= pullRequestCount
+
+				ch <- repoStatResponse{stats: repoStats{
+					Repo:             entry.Repo,
+					pullRequestCount: pullRequestCount,
+				}}
 			}
-
-			pullRequestCount := len(pullRequests)
-			entry.Repo.OpenIssuesCount -= pullRequestCount
-
-			ch <- repoStatResponse{stats: repoStats{
-				Repo:             entry.Repo,
-				pullRequestCount: pullRequestCount,
-			}}
 			parallel.Release(1)
 		}(entry)
 	}
