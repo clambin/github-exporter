@@ -95,7 +95,7 @@ func (c Collector) getPRs(ctx context.Context, stats []repoStats, ch chan repoSt
 		go func(entry repoStats) {
 			pullRequests, err := c.Client.GetPullRequests(ctx, entry.Repo.FullName)
 			if err != nil {
-				ch <- repoStatResponse{err: err}
+				ch <- repoStatResponse{err: fmt.Errorf("get pr stats: %w", err)}
 				return
 			}
 
