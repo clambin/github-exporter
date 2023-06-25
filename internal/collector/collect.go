@@ -64,7 +64,6 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 		if entry.err != nil {
 			slog.Error("failed to collect github statistics", "err", entry.err)
 			ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("github_monitor_error", "Error getting github statistics", nil, nil), entry.err)
-			//return
 			continue
 		}
 		archived := bool2string(entry.stats.Repo.Archived)

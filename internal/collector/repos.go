@@ -42,7 +42,7 @@ func (c Collector) getStats(ch chan repoStatResponse) {
 		return
 	}
 
-	c.getPRs(ctx, stats, ch)
+	c.addPullRequests(ctx, stats, ch)
 }
 
 func (c Collector) queryAllRepoStats(ctx context.Context, ch chan repoStatResponse) {
@@ -87,25 +87,25 @@ func (c Collector) queryRepoStats(ctx context.Context, ch chan repoStatResponse,
 	}
 }
 
-func (c Collector) getPRs(ctx context.Context, stats []repoStats, ch chan repoStatResponse) {
+func (c Collector) addPullRequests(ctx context.Context, stats []repoStats, ch chan repoStatResponse) {
 	parallel := semaphore.NewWeighted(maxParallel)
 
 	for _, entry := range stats {
 		_ = parallel.Acquire(ctx, 1)
 		go func(entry repoStats) {
+			var pullRequestCount int
 			pullRequests, err := c.Client.GetPullRequests(ctx, entry.Repo.FullName)
-			if err != nil {
-				ch <- repoStatResponse{err: fmt.Errorf("get pr stats: %w", err)}
-				//return
-			} else {
 
-				pullRequestCount := len(pullRequests)
+			if err == nil {
+				pullRequestCount = len(pullRequests)
 				entry.Repo.OpenIssuesCount -= pullRequestCount
+			} else {
+				err = fmt.Errorf("get pr stats: %w", err)
+			}
 
-				ch <- repoStatResponse{stats: repoStats{
-					Repo:             entry.Repo,
-					pullRequestCount: pullRequestCount,
-				}}
+			ch <- repoStatResponse{
+				stats: repoStats{Repo: entry.Repo, pullRequestCount: pullRequestCount},
+				err:   err,
 			}
 			parallel.Release(1)
 		}(entry)
