@@ -82,7 +82,7 @@ func (c *GitHubCache) getAllRepoStats(ctx context.Context) ([]RepoStats, error) 
 	return stats, err
 }
 
-const maxParallel = 100
+const maxParallel = 25
 
 func (c *GitHubCache) queryAllRepoStats(ctx context.Context, ch chan repoStatResponse) {
 	parallel := semaphore.NewWeighted(maxParallel)

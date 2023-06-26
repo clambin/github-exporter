@@ -21,8 +21,8 @@ var (
 	configFilename string
 	BuildVersion   = "change-me"
 	cmd            = &cobra.Command{
-		Use:     "mediamon",
-		Short:   "Prometheus exporter for various media applications. Currently supports Transmission, OpenVPN Client, Sonarr, Radarr and Plex.",
+		Use:     "github-exporter",
+		Short:   "Prometheus exporter for GitHub repositories",
 		Run:     Main,
 		Version: BuildVersion,
 	}
@@ -39,7 +39,9 @@ func main() {
 	}
 }
 
-func Main(_ *cobra.Command, _ []string) {
+func Main(cmd *cobra.Command, _ []string) {
+	slog.Info(cmd.Name()+" started", "version", cmd.Version, "cache", viper.GetDuration("git.cache"))
+
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: viper.GetString("git.token")},
@@ -47,19 +49,22 @@ func Main(_ *cobra.Command, _ []string) {
 	tc := oauth2.NewClient(ctx, ts)
 
 	tp := httpclient.NewRoundTripper(
-		httpclient.WithMetrics("github", "", ""),
+		httpclient.WithMetrics("github", "monitor", "github-exporter"),
 		httpclient.WithRoundTripper(tc.Transport),
 	)
 
 	c := collector.Collector{
 		GitHubCache: collector.GitHubCache{
 			Client: &client.Client{
-				Client: github.NewClient(&http.Client{Transport: tp}),
+				Client: github.NewClient(&http.Client{
+					Transport: tp,
+					Timeout:   10 * time.Second},
+				),
 			},
 			Users:           viper.GetStringSlice("repos.user"),
 			Repos:           viper.GetStringSlice("repos.repo"),
 			IncludeArchived: viper.GetBool("repos.archived"),
-			Lifetime:        time.Hour,
+			Lifetime:        viper.GetDuration("git.cache"),
 		},
 	}
 
@@ -92,6 +97,7 @@ func initConfig() {
 	viper.SetDefault("repos.repo", []string{})
 	viper.SetDefault("repos.archived", false)
 	viper.SetDefault("git.token", "")
+	viper.SetDefault("git.cache", time.Hour)
 
 	viper.SetEnvPrefix("GITHUB_EXPORTER")
 	viper.AutomaticEnv()
