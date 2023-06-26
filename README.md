@@ -7,7 +7,7 @@
 Prometheus exporter for GitHub repositories
 
 ## Installation
-Binaries are available on the [release](https://github.com/clambin/github-exporter/releases) page. Docker images are available on [ghcr.io](https://ghcr.io/clambin/github-exporter.
+Binaries are available on the [release](https://github.com/clambin/github-exporter/releases) page. Docker images are available on [ghcr.io](https://ghcr.io/clambin/github-exporter).
 
 ## Usage
 ### Command-line options
