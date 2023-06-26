@@ -1,5 +1,5 @@
 # github-exporter
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/clambin/githyb-exporter?color=green&label=Release&style=plastic)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/clambin/github-exporter?color=green&label=Release&style=plastic)
 ![Build)](https://github.com/clambin/github-exporter/workflows/Build/badge.svg)
 ![Codecov](https://img.shields.io/codecov/c/gh/clambin/github-exporter?style=plastic)
 ![Go Report Card](https://goreportcard.com/badge/github.com/clambin/github-exporter)
