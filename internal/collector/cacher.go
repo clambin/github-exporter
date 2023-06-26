@@ -16,45 +16,32 @@ type GitHubClient interface {
 	GetPullRequests(context.Context, string) ([]*github.PullRequest, error)
 }
 
-type Cacher struct {
+type GitHubCache struct {
 	Client          GitHubClient
 	Users           []string
 	Repos           []string
 	IncludeArchived bool
 	Lifetime        time.Duration
-	content         []RepoStats
-	created         time.Time
+	repoStats       []RepoStats
+	expiration      time.Time
 	lock            sync.Mutex
 }
 
-func (c *Cacher) Get() ([]RepoStats, error) {
+func (c *GitHubCache) Get() ([]RepoStats, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	if !c.created.IsZero() && time.Now().Before(c.created.Add(c.Lifetime)) {
-		return c.content, nil
+	if time.Now().Before(c.expiration) {
+		return c.repoStats, nil
 	}
 
-	ch := make(chan RepoStatResponse)
-	go c.GetStats(ch)
-
-	c.content = make([]RepoStats, 0)
-	var err error
-	for resp := range ch {
-		if resp.Err != nil {
-			err = resp.Err
-			continue
-		}
-		c.content = append(c.content, resp.Stats)
+	stats, err := c.getStats()
+	if err == nil {
+		c.repoStats = stats
+		c.expiration = time.Now().Add(c.Lifetime)
 	}
-	c.created = time.Now()
 
-	return c.content, err
-}
-
-type RepoStatResponse struct {
-	Stats RepoStats
-	Err   error
+	return c.repoStats, err
 }
 
 type RepoStats struct {
@@ -62,15 +49,28 @@ type RepoStats struct {
 	PullRequestCount int
 }
 
-func (c *Cacher) GetStats(ch chan RepoStatResponse) {
+type repoStatResponse struct {
+	Stats RepoStats
+	Err   error
+}
+
+func (c *GitHubCache) getStats() ([]RepoStats, error) {
 	ctx := context.Background()
-	repos := make(chan RepoStatResponse)
-	go c.queryAllRepoStats(ctx, repos)
+	stats, err := c.getAllRepoStats(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return c.addPullRequests(ctx, stats)
+}
+
+func (c *GitHubCache) getAllRepoStats(ctx context.Context) ([]RepoStats, error) {
+	ch := make(chan repoStatResponse)
+	go c.queryAllRepoStats(ctx, ch)
 
 	var stats []RepoStats
 	var err error
 
-	for resp := range repos {
+	for resp := range ch {
 		if resp.Err != nil {
 			err = resp.Err
 		}
@@ -79,18 +79,12 @@ func (c *Cacher) GetStats(ch chan RepoStatResponse) {
 		}
 		stats = append(stats, resp.Stats)
 	}
-	if err != nil {
-		ch <- RepoStatResponse{Err: fmt.Errorf("get repo stats: %w", err)}
-		close(ch)
-		return
-	}
-
-	c.addPullRequests(ctx, stats, ch)
+	return stats, err
 }
 
 const maxParallel = 100
 
-func (c *Cacher) queryAllRepoStats(ctx context.Context, ch chan RepoStatResponse) {
+func (c *GitHubCache) queryAllRepoStats(ctx context.Context, ch chan repoStatResponse) {
 	parallel := semaphore.NewWeighted(maxParallel)
 
 	for _, user := range c.Users {
@@ -113,26 +107,41 @@ func (c *Cacher) queryAllRepoStats(ctx context.Context, ch chan RepoStatResponse
 	close(ch)
 }
 
-func (c *Cacher) queryUserRepoStats(ctx context.Context, ch chan RepoStatResponse, user string) {
+func (c *GitHubCache) queryUserRepoStats(ctx context.Context, ch chan repoStatResponse, user string) {
 	userRepos, err := c.Client.GetUserRepos(ctx, user)
 	if err != nil {
-		ch <- RepoStatResponse{Err: err}
+		ch <- repoStatResponse{Err: err}
 		return
 	}
 	for _, userRepo := range userRepos {
-		ch <- RepoStatResponse{Stats: RepoStats{Repository: userRepo}}
+		ch <- repoStatResponse{Stats: RepoStats{Repository: userRepo}}
 	}
 }
 
-func (c *Cacher) queryRepoStats(ctx context.Context, ch chan RepoStatResponse, repoName string) {
+func (c *GitHubCache) queryRepoStats(ctx context.Context, ch chan repoStatResponse, repoName string) {
 	repo, err := c.Client.GetRepo(ctx, repoName)
-	ch <- RepoStatResponse{
+	ch <- repoStatResponse{
 		Stats: RepoStats{Repository: repo},
 		Err:   err,
 	}
 }
 
-func (c *Cacher) addPullRequests(ctx context.Context, stats []RepoStats, ch chan RepoStatResponse) {
+func (c *GitHubCache) addPullRequests(ctx context.Context, stats []RepoStats) ([]RepoStats, error) {
+	ch := make(chan repoStatResponse)
+	go c.getPullRequests(ctx, stats, ch)
+
+	var err error
+	result := make([]RepoStats, 0, len(stats))
+	for stat := range ch {
+		if stat.Err != nil {
+			err = stat.Err
+		}
+		result = append(result, stat.Stats)
+	}
+	return result, err
+}
+
+func (c *GitHubCache) getPullRequests(ctx context.Context, stats []RepoStats, ch chan repoStatResponse) {
 	parallel := semaphore.NewWeighted(maxParallel)
 
 	for _, entry := range stats {
@@ -150,7 +159,7 @@ func (c *Cacher) addPullRequests(ctx context.Context, stats []RepoStats, ch chan
 				err = fmt.Errorf("get pr stats: %w", err)
 			}
 
-			ch <- RepoStatResponse{
+			ch <- repoStatResponse{
 				Stats: RepoStats{Repository: entry.Repository, PullRequestCount: pullRequestCount},
 				Err:   err,
 			}

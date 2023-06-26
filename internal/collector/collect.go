@@ -8,7 +8,7 @@ import (
 var _ prometheus.Collector = &Collector{}
 
 type Collector struct {
-	Cacher
+	GitHubCache
 }
 
 var metrics = map[string]*prometheus.Desc{
@@ -45,7 +45,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	stats, err := c.Cacher.Get()
+	stats, err := c.GitHubCache.Get()
 
 	if err != nil {
 		slog.Error("failed to collect github statistics", "err", err)

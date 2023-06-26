@@ -52,7 +52,7 @@ func Main(_ *cobra.Command, _ []string) {
 	)
 
 	c := collector.Collector{
-		Cacher: collector.Cacher{
+		GitHubCache: collector.GitHubCache{
 			Client: &client.Client{
 				Client: github.NewClient(&http.Client{Transport: tp}),
 			},
