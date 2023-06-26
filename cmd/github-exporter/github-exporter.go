@@ -72,7 +72,7 @@ func Main(cmd *cobra.Command, _ []string) {
 	prometheus.MustRegister(&c)
 
 	http.Handle("/metrics", promhttp.Handler())
-	_ = http.ListenAndServe(":9090", nil)
+	_ = http.ListenAndServe(viper.GetString("addr"), nil)
 }
 
 func init() {
@@ -93,6 +93,7 @@ func initConfig() {
 	}
 
 	viper.SetDefault("debug", false)
+	viper.SetDefault("addr", ":9090")
 	viper.SetDefault("repos.user", []string{})
 	viper.SetDefault("repos.repo", []string{})
 	viper.SetDefault("repos.archived", false)

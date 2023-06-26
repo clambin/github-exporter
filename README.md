@@ -35,6 +35,8 @@ The configuration file contains the following options:
 ```
 # set debug to true to log debug messages
 debug: false
+# listener address for the /metrics endpoint
+addr: :9090
 # this section lists all repos to be monitored. Repos can be specified in either the `repo` section as an individual
 # repo, or in the `user` section, which will monitor all repos for that user.
 # notes: 
@@ -52,6 +54,13 @@ git:
   token: <your-token>
   # cache specifies how long to cache GitHub information.  
   cache: 1h
+```
+
+Any value in the configuration file may be overriden by setting an environment variable with a prefix `GITHUB_EXPORTER_`.
+E.g. to override the git token, set the following variable:
+
+```
+export GITHUB_EXPORTER_GIT.TOKEN="your-token"
 ```
 
 ## Prometheus metrics
