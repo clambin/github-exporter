@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/go-github/v53/github"
+	"golang.org/x/exp/slog"
 	"sync"
 	"time"
 )
@@ -46,6 +47,18 @@ func (c *GitHubCache) Get() ([]RepoStats, error) {
 type RepoStats struct {
 	*github.Repository
 	PullRequestCount int
+}
+
+func (rs RepoStats) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("name", rs.GetFullName()),
+		slog.Bool("archived", rs.GetArchived()),
+		slog.Bool("fork", rs.GetFork()),
+		slog.Bool("private", rs.GetPrivate()),
+		slog.Int("stars", rs.GetStargazersCount()),
+		slog.Int("issues", rs.GetOpenIssues()),
+		slog.Int("pullRequests", rs.PullRequestCount),
+	)
 }
 
 type repoStatResponse struct {

@@ -10,6 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/exp/slog"
 	"testing"
 	"time"
 )
@@ -124,4 +125,43 @@ func makeTestClient(t *testing.T) collector.GitHubClient {
 		Return([]*github.PullRequest{{}}, nil)
 
 	return client
+}
+
+func TestRepoStats_LogValue(t *testing.T) {
+	owner := "clambin"
+	name := "foo"
+	fullName := owner + "/" + name
+	isTrue := true
+	isFalse := false
+	forks := 5
+	openIssues := 10
+	stars := 15
+
+	repo := collector.RepoStats{
+		Repository: &github.Repository{
+			Owner:           &github.User{Name: &owner},
+			Name:            &name,
+			FullName:        &fullName,
+			Fork:            &isFalse,
+			ForksCount:      &forks,
+			OpenIssuesCount: &openIssues,
+			StargazersCount: &stars,
+			Archived:        &isTrue,
+			Private:         &isFalse,
+		},
+		PullRequestCount: 10,
+	}
+
+	var out bytes.Buffer
+	logger := slog.New(slog.NewTextHandler(&out, &slog.HandlerOptions{ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+		if a.Key == slog.TimeKey {
+			return slog.Attr{}
+		}
+		return a
+	}}))
+	logger.Info("repo", "repo", repo)
+
+	assert.Equal(t, `level=INFO msg=repo repo.name=clambin/foo repo.archived=true repo.fork=false repo.private=false repo.stars=15 repo.issues=0 repo.pullRequests=10
+`, out.String())
+
 }

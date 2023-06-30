@@ -28,13 +28,15 @@ func New(maxParallel int64, next http.RoundTripper, namespace, subsystem, applic
 }
 
 func (l *Limiter) RoundTrip(request *http.Request) (*http.Response, error) {
-	if err := l.parallel.Acquire(request.Context(), 1); err != nil {
+	ctx := request.Context()
+	if err := l.parallel.Acquire(ctx, 1); err != nil {
 		return nil, fmt.Errorf("acquire semaphore: %w", err)
 	}
 	defer l.parallel.Release(1)
-
 	l.metrics.inc()
-	defer l.metrics.dec()
+	defer func() {
+		l.metrics.dec()
+	}()
 
 	return l.next.RoundTrip(request)
 }

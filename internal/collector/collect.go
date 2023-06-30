@@ -54,6 +54,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, entry := range stats {
+		slog.Debug("repo found", "repo", entry)
+
 		fullName := entry.Repository.GetFullName()
 		archived := bool2string(entry.Repository.GetArchived())
 		fork := bool2string(entry.Repository.GetFork())

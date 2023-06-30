@@ -29,10 +29,6 @@ var (
 )
 
 func main() {
-	if viper.GetBool("debug") {
-		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug})))
-	}
-
 	if err := cmd.Execute(); err != nil {
 		slog.Error("failed to start", "err", err)
 		os.Exit(1)
@@ -40,6 +36,10 @@ func main() {
 }
 
 func Main(cmd *cobra.Command, _ []string) {
+	if viper.GetBool("debug") {
+		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug})))
+	}
+
 	slog.Info(cmd.Name()+" started", "version", cmd.Version, "cache", viper.GetDuration("git.cache"))
 
 	ctx := cmd.Context()

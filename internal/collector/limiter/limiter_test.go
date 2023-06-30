@@ -49,18 +49,32 @@ func TestLimiter_RoundTrip_Exceeded(t *testing.T) {
 	r := limiter.New(1, &s, "foo", "bar", "snafu")
 	c := http.Client{Transport: r}
 
+	go func() {
+		_, _ = c.Get("/")
+	}()
+
+	// wait for the first request to reach the server
+	assert.Eventually(t, func() bool {
+		s.lock.Lock()
+		defer s.lock.Unlock()
+
+		return s.called > 0
+	}, time.Second, 10*time.Millisecond)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
 
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	_, err := c.Do(req)
-	require.NoError(t, err)
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, context.DeadlineExceeded)
 }
 
 var _ http.RoundTripper = &stubbedServer{}
 
 type stubbedServer struct {
 	delay       time.Duration
+	called      int
 	inFlight    int
 	maxInFlight int
 	lock        sync.Mutex
@@ -69,7 +83,9 @@ type stubbedServer struct {
 func (s *stubbedServer) RoundTrip(_ *http.Request) (*http.Response, error) {
 	s.inc()
 	defer s.dec()
+
 	time.Sleep(s.delay)
+
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Body:       io.NopCloser(bytes.NewBufferString(`hello`)),
@@ -79,6 +95,7 @@ func (s *stubbedServer) RoundTrip(_ *http.Request) (*http.Response, error) {
 func (s *stubbedServer) inc() {
 	s.lock.Lock()
 	defer s.lock.Unlock()
+	s.called++
 	s.inFlight++
 	if s.inFlight > s.maxInFlight {
 		s.maxInFlight = s.inFlight
