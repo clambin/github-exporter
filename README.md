@@ -65,14 +65,17 @@ export GITHUB_EXPORTER_GIT.TOKEN="your-token"
 
 ## Prometheus metrics
 
-| metric                          | type    | description                                          | labels                        |
-|---------------------------------|---------|------------------------------------------------------|-------------------------------|
-| github_monitor_forks            | gauge   | Number of forks                                      | archived, fork, private, repo |
-| github_monitor_issues           | gauge   | Number of open issues raised against the repo        | archived, fork, private, repo |
-| github_monitor_pulls            | gauge   | Number of open pull requests raised against the repo | archived, fork, private, repo |
-| github_monitor_stars            | gauge   | Number of stars                                      | archived, fork, private, repo |
-| github_monitor_api_latency      | summary | Latency of GitHub API calls                          | application, method, path     |
-| github_monitor_api_errors_total | counter | Number of errors raised by GitHub API calls          | application, method, path     |
+| metric                           | type    | description                                          | labels                        |
+|----------------------------------|---------|------------------------------------------------------|-------------------------------|
+| github_monitor_forks             | gauge   | Number of forks                                      | archived, fork, private, repo |
+| github_monitor_issues            | gauge   | Number of open issues raised against the repo        | archived, fork, private, repo |
+| github_monitor_pulls             | gauge   | Number of open pull requests raised against the repo | archived, fork, private, repo |
+| github_monitor_stars             | gauge   | Number of stars                                      | archived, fork, private, repo |
+| github_monitor_api_latency       | summary | Latency of GitHub API calls                          | application, method, path     |
+| github_monitor_api_errors_total  | counter | Number of errors raised by GitHub API calls          | application, method, path     |
+| github_monitor_api_in_flight     | gauge   | Number of GitHub API calls in flight                 | application                   |
+| github_monitor_api_max_in_flight | gauge   | Highest number of GitHub API calls in flight         | application                   |
+
 
 ## Authors
 

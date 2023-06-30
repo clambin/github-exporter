@@ -38,9 +38,9 @@ func TestLimiter_RoundTrip(t *testing.T) {
 	assert.LessOrEqual(t, s.maxInFlight, maxParallel)
 
 	assert.NoError(t, testutil.GatherAndCompare(reg, bytes.NewBufferString(`
-# HELP foo_bar_max_inflight Maximum number of requests in flight
-# TYPE foo_bar_max_inflight gauge
-foo_bar_max_inflight{application="snafu"} 10
+# HELP foo_bar_api_max_inflight Maximum number of requests in flight
+# TYPE foo_bar_api_max_inflight gauge
+foo_bar_api_max_inflight{application="snafu"} 10
 `), "foo_bar_max_inflight"))
 }
 

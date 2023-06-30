@@ -18,13 +18,13 @@ type metrics struct {
 func newMetrics(namespace, subsystem, application string) metrics {
 	return metrics{
 		inFlightMetric: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "inflight"),
+			prometheus.BuildFQName(namespace, subsystem, "api_inflight"),
 			"Number of requests in flight",
 			nil,
 			map[string]string{"application": application},
 		),
 		maxInFlightMetric: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "max_inflight"),
+			prometheus.BuildFQName(namespace, subsystem, "api_max_inflight"),
 			"Maximum number of requests in flight",
 			nil,
 			map[string]string{"application": application},
