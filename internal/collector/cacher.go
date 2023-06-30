@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/go-github/v53/github"
-	"golang.org/x/sync/semaphore"
 	"sync"
 	"time"
 )
@@ -82,28 +81,26 @@ func (c *GitHubCache) getAllRepoStats(ctx context.Context) ([]RepoStats, error) 
 	return stats, err
 }
 
-const maxParallel = 25
-
 func (c *GitHubCache) queryAllRepoStats(ctx context.Context, ch chan repoStatResponse) {
-	parallel := semaphore.NewWeighted(maxParallel)
+	var wg sync.WaitGroup
 
 	for _, user := range c.Users {
-		_ = parallel.Acquire(ctx, 1)
+		wg.Add(1)
 		go func(user string) {
+			defer wg.Done()
 			c.queryUserRepoStats(ctx, ch, user)
-			parallel.Release(1)
 		}(user)
 	}
 
 	for _, repo := range c.Repos {
-		_ = parallel.Acquire(ctx, 1)
+		wg.Add(1)
 		go func(repo string) {
+			defer wg.Done()
 			c.queryRepoStats(ctx, ch, repo)
-			parallel.Release(1)
 		}(repo)
 	}
 
-	_ = parallel.Acquire(ctx, maxParallel)
+	wg.Wait()
 	close(ch)
 }
 
@@ -142,11 +139,12 @@ func (c *GitHubCache) addPullRequests(ctx context.Context, stats []RepoStats) ([
 }
 
 func (c *GitHubCache) getPullRequests(ctx context.Context, stats []RepoStats, ch chan repoStatResponse) {
-	parallel := semaphore.NewWeighted(maxParallel)
+	var wg sync.WaitGroup
 
 	for _, entry := range stats {
-		_ = parallel.Acquire(ctx, 1)
+		wg.Add(1)
 		go func(entry RepoStats) {
+			defer wg.Done()
 			fullName := entry.Repository.GetFullName()
 
 			var pullRequestCount int
@@ -163,9 +161,9 @@ func (c *GitHubCache) getPullRequests(ctx context.Context, stats []RepoStats, ch
 				Stats: RepoStats{Repository: entry.Repository, PullRequestCount: pullRequestCount},
 				Err:   err,
 			}
-			parallel.Release(1)
 		}(entry)
 	}
-	_ = parallel.Acquire(ctx, maxParallel)
+
+	wg.Wait()
 	close(ch)
 }
