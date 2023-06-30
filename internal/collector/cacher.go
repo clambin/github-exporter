@@ -37,11 +37,23 @@ func (c *GitHubCache) Get() ([]RepoStats, error) {
 
 	stats, err := c.getStats()
 	if err == nil {
-		c.repoStats = stats
+		c.repoStats = uniqueRepoStats(stats)
 		c.expiration = time.Now().Add(c.Lifetime)
 	}
 
 	return c.repoStats, err
+}
+
+func uniqueRepoStats(stats []RepoStats) []RepoStats {
+	unique := make(map[string]RepoStats)
+	for _, entry := range stats {
+		unique[entry.GetFullName()] = entry
+	}
+	output := make([]RepoStats, 0, len(unique))
+	for _, entry := range unique {
+		output = append(output, entry)
+	}
+	return output
 }
 
 type RepoStats struct {

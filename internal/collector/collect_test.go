@@ -20,7 +20,7 @@ func TestCollector_Collect(t *testing.T) {
 		collector.GitHubCache{
 			Client:          makeTestClient(t),
 			Users:           []string{"clambin"},
-			Repos:           []string{"foo/bar"},
+			Repos:           []string{"clambin/github-exporter", "foo/bar"},
 			IncludeArchived: false,
 			Lifetime:        time.Hour,
 		},
@@ -119,6 +119,15 @@ func makeTestClient(t *testing.T) collector.GitHubClient {
 			StargazersCount: &repos[3].stars,
 			ForksCount:      &repos[3].forks,
 			OpenIssuesCount: &repos[3].issues,
+		}, nil).Once()
+	client.
+		On("GetRepo", mock.AnythingOfType("*context.emptyCtx"), "clambin/github-exporter").
+		Return(&github.Repository{
+			FullName:        &repos[2].name,
+			Archived:        &repos[2].archived,
+			StargazersCount: &repos[2].stars,
+			ForksCount:      &repos[2].forks,
+			OpenIssuesCount: &repos[2].issues,
 		}, nil).Once()
 	client.
 		On("GetPullRequests", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("string")).
