@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/collector/client"
-	"github.com/clambin/github-exporter/internal/collector/limiter"
 	"github.com/clambin/go-common/httpclient"
 	"github.com/google/go-github/v53/github"
 	"github.com/prometheus/client_golang/prometheus"
@@ -49,17 +48,16 @@ func Main(cmd *cobra.Command, _ []string) {
 	tc := oauth2.NewClient(ctx, ts)
 
 	tp := httpclient.NewRoundTripper(
+		httpclient.WithInstrumentedLimiter(25, "github", "monitor", "github-exporter"),
 		httpclient.WithMetrics("github", "monitor", "github-exporter"),
 		httpclient.WithRoundTripper(tc.Transport),
 	)
-
-	l := limiter.New(25, tp, "github", "monitor", "github-exporter")
 
 	c := collector.Collector{
 		GitHubCache: collector.GitHubCache{
 			Client: &client.Client{
 				Client: github.NewClient(&http.Client{
-					Transport: l,
+					Transport: tp,
 					Timeout:   10 * time.Second},
 				),
 			},
@@ -72,7 +70,6 @@ func Main(cmd *cobra.Command, _ []string) {
 
 	prometheus.MustRegister(tp)
 	prometheus.MustRegister(&c)
-	prometheus.MustRegister(l)
 
 	http.Handle("/metrics", promhttp.Handler())
 	_ = http.ListenAndServe(viper.GetString("addr"), nil)

@@ -17,7 +17,7 @@ import (
 
 func TestCollector_Collect(t *testing.T) {
 	c := collector.Collector{
-		collector.GitHubCache{
+		GitHubCache: collector.GitHubCache{
 			Client:          makeTestClient(t),
 			Users:           []string{"clambin"},
 			Repos:           []string{"clambin/github-exporter", "foo/bar"},
