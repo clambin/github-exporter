@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/go-github/v53/github"
-	"golang.org/x/exp/slog"
+	"log/slog"
 	"sync"
 	"time"
 )
 
-//go:generate mockery --name GitHubClient
 type GitHubClient interface {
 	GetUserRepos(context.Context, string) ([]*github.Repository, error)
 	GetRepo(context.Context, string) (*github.Repository, error)

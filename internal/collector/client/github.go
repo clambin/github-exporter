@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/go-github/v53/github"
-	"golang.org/x/exp/slog"
+	"log/slog"
 	"strings"
-	"time"
 )
 
 // wrapper for GitHub client
@@ -27,7 +26,7 @@ func (c *Client) GetUserRepos(ctx context.Context, user string) ([]*github.Repos
 		if err != nil {
 			return nil, err
 		}
-		slog.Debug("github rate", "max", resp.Rate.Limit, "remaining", resp.Rate.Remaining, "reset", time.Until(resp.Rate.Reset.Time))
+		//slog.Debug("github rate", "max", resp.Rate.Limit, "remaining", resp.Rate.Remaining, "reset", time.Until(resp.Rate.Reset.Time))
 		repos = append(repos, r...)
 		if resp.NextPage == 0 {
 			break
@@ -43,8 +42,8 @@ func (c *Client) GetRepo(ctx context.Context, repo string) (*github.Repository, 
 	if err != nil {
 		return nil, fmt.Errorf("repo: %w", err)
 	}
-	r, resp, err := c.Client.Repositories.Get(ctx, user, repo)
-	slog.Debug("github rate", "max", resp.Rate.Limit, "remaining", resp.Rate.Remaining, "reset", time.Until(resp.Rate.Reset.Time))
+	r, _, err := c.Client.Repositories.Get(ctx, user, repo)
+	//slog.Debug("github rate", "max", resp.Rate.Limit, "remaining", resp.Rate.Remaining, "reset", time.Until(resp.Rate.Reset.Time))
 	slog.Debug("repo", "name", repo)
 	return r, err
 }
@@ -64,7 +63,7 @@ func (c *Client) GetPullRequests(ctx context.Context, repo string) ([]*github.Pu
 		if err != nil {
 			return nil, err
 		}
-		slog.Debug("github rate", "max", resp.Rate.Limit, "remaining", resp.Rate.Remaining, "reset", time.Until(resp.Rate.Reset.Time))
+		//slog.Debug("github rate", "max", resp.Rate.Limit, "remaining", resp.Rate.Remaining, "reset", time.Until(resp.Rate.Reset.Time))
 		pullRequests = append(pullRequests, prs...)
 		if resp.NextPage == 0 {
 			break

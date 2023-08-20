@@ -10,7 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"golang.org/x/exp/slog"
+	"log/slog"
 	"testing"
 	"time"
 )
@@ -56,10 +56,10 @@ github_monitor_stars{archived="false",fork="false",private="false",repo="foo/bar
 
 func TestCollector_Collect_Failure(t *testing.T) {
 	client := mocks.NewGitHubClient(t)
-	client.On("GetUserRepos", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("string")).Return(nil, errors.New("failure"))
+	client.EXPECT().GetUserRepos(mock.Anything, "clambin").Return(nil, errors.New("failure"))
 
 	c := collector.Collector{
-		collector.GitHubCache{
+		GitHubCache: collector.GitHubCache{
 			Client: client,
 			Users:  []string{"clambin"},
 		},
@@ -86,51 +86,44 @@ func makeTestClient(t *testing.T) collector.GitHubClient {
 	}
 
 	client := mocks.NewGitHubClient(t)
-	client.
-		On("GetUserRepos", mock.AnythingOfType("*context.emptyCtx"), "clambin").
-		Return([]*github.Repository{
-			{
-				FullName:        &repos[0].name,
-				Archived:        &repos[0].archived,
-				StargazersCount: &repos[0].stars,
-				ForksCount:      &repos[0].forks,
-				OpenIssuesCount: &repos[0].issues,
-			},
-			{
-				FullName:        &repos[1].name,
-				Archived:        &repos[1].archived,
-				StargazersCount: &repos[1].stars,
-				ForksCount:      &repos[1].forks,
-				OpenIssuesCount: &repos[1].issues,
-			},
-			{
-				FullName:        &repos[2].name,
-				Archived:        &repos[2].archived,
-				StargazersCount: &repos[2].stars,
-				ForksCount:      &repos[2].forks,
-				OpenIssuesCount: &repos[2].issues,
-			},
-		}, nil).Once()
-	client.
-		On("GetRepo", mock.AnythingOfType("*context.emptyCtx"), "foo/bar").
-		Return(&github.Repository{
-			FullName:        &repos[3].name,
-			Archived:        &repos[3].archived,
-			StargazersCount: &repos[3].stars,
-			ForksCount:      &repos[3].forks,
-			OpenIssuesCount: &repos[3].issues,
-		}, nil).Once()
-	client.
-		On("GetRepo", mock.AnythingOfType("*context.emptyCtx"), "clambin/github-exporter").
-		Return(&github.Repository{
+	client.EXPECT().GetUserRepos(mock.Anything, "clambin").Return([]*github.Repository{
+		{
+			FullName:        &repos[0].name,
+			Archived:        &repos[0].archived,
+			StargazersCount: &repos[0].stars,
+			ForksCount:      &repos[0].forks,
+			OpenIssuesCount: &repos[0].issues,
+		},
+		{
+			FullName:        &repos[1].name,
+			Archived:        &repos[1].archived,
+			StargazersCount: &repos[1].stars,
+			ForksCount:      &repos[1].forks,
+			OpenIssuesCount: &repos[1].issues,
+		},
+		{
 			FullName:        &repos[2].name,
 			Archived:        &repos[2].archived,
 			StargazersCount: &repos[2].stars,
 			ForksCount:      &repos[2].forks,
 			OpenIssuesCount: &repos[2].issues,
-		}, nil).Once()
-	client.
-		On("GetPullRequests", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("string")).
+		},
+	}, nil).Once()
+	client.EXPECT().GetRepo(mock.Anything, "foo/bar").Return(&github.Repository{
+		FullName:        &repos[3].name,
+		Archived:        &repos[3].archived,
+		StargazersCount: &repos[3].stars,
+		ForksCount:      &repos[3].forks,
+		OpenIssuesCount: &repos[3].issues,
+	}, nil).Once()
+	client.EXPECT().GetRepo(mock.Anything, "clambin/github-exporter").Return(&github.Repository{
+		FullName:        &repos[2].name,
+		Archived:        &repos[2].archived,
+		StargazersCount: &repos[2].stars,
+		ForksCount:      &repos[2].forks,
+		OpenIssuesCount: &repos[2].issues,
+	}, nil).Once()
+	client.EXPECT().GetPullRequests(mock.Anything, mock.AnythingOfType("string")).
 		Return([]*github.PullRequest{{}}, nil)
 
 	return client
