@@ -18,12 +18,12 @@ import (
 
 var (
 	configFilename string
-	BuildVersion   = "change-me"
+	version        = "change-me"
 	cmd            = &cobra.Command{
 		Use:     "github-exporter",
 		Short:   "Prometheus exporter for GitHub repositories",
 		Run:     Main,
-		Version: BuildVersion,
+		Version: version,
 	}
 )
 
