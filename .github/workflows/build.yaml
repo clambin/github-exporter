@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - github58
+      - gitbhub58
 
 jobs:
   test:
