@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/collector/mocks"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v58/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"

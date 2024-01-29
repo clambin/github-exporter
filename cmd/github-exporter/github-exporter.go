@@ -4,7 +4,7 @@ import (
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/collector/client"
 	"github.com/clambin/go-common/httpclient"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v58/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"

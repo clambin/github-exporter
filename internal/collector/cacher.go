@@ -3,7 +3,7 @@ package collector
 import (
 	"context"
 	"fmt"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v58/github"
 	"log/slog"
 	"sync"
 	"time"
