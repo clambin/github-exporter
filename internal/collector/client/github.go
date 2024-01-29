@@ -17,12 +17,12 @@ type Client struct {
 const recordsPerPage = 100
 
 func (c *Client) GetUserRepos(ctx context.Context, user string) ([]*github.Repository, error) {
-	opt := &github.RepositoryListOptions{
+	opt := &github.RepositoryListByUserOptions{
 		ListOptions: github.ListOptions{PerPage: recordsPerPage},
 	}
 	var repos []*github.Repository
 	for {
-		r, resp, err := c.Client.Repositories.List(ctx, user, opt)
+		r, resp, err := c.Client.Repositories.ListByUser(ctx, user, opt)
 		if err != nil {
 			return nil, err
 		}
