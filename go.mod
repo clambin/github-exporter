@@ -6,7 +6,7 @@ require (
 	github.com/clambin/go-common/httpclient v0.6.0
 	github.com/google/go-github/v53 v53.2.0
 	github.com/prometheus/client_golang v1.18.0
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/oauth2 v0.16.0
