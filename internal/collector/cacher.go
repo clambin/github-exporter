@@ -9,12 +9,6 @@ import (
 	"time"
 )
 
-type GitHubClient interface {
-	GetUserRepos(context.Context, string) ([]*github.Repository, error)
-	GetRepo(context.Context, string) (*github.Repository, error)
-	GetPullRequests(context.Context, string) ([]*github.PullRequest, error)
-}
-
 type GitHubCache struct {
 	Client          GitHubClient
 	Users           []string
@@ -26,6 +20,12 @@ type GitHubCache struct {
 	lock            sync.Mutex
 }
 
+type GitHubClient interface {
+	GetUserRepos(context.Context, string) ([]*github.Repository, error)
+	GetRepo(context.Context, string) (*github.Repository, error)
+	GetPullRequests(context.Context, string) ([]*github.PullRequest, error)
+}
+
 func (c *GitHubCache) Get() ([]RepoStats, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -34,16 +34,20 @@ func (c *GitHubCache) Get() ([]RepoStats, error) {
 		return c.repoStats, nil
 	}
 
-	stats, err := c.getStats()
-	if err == nil {
-		c.repoStats = uniqueRepoStats(stats)
+	var err error
+	if c.repoStats, err = c.getRepoStats(); err == nil {
 		c.expiration = time.Now().Add(c.Lifetime)
 	}
 
 	return c.repoStats, err
 }
 
-func uniqueRepoStats(stats []RepoStats) []RepoStats {
+func (c *GitHubCache) getRepoStats() ([]RepoStats, error) {
+	stats, err := c.getStats()
+	if err != nil {
+		return nil, err
+	}
+
 	unique := make(map[string]RepoStats)
 	for _, entry := range stats {
 		unique[entry.GetFullName()] = entry
@@ -52,7 +56,7 @@ func uniqueRepoStats(stats []RepoStats) []RepoStats {
 	for _, entry := range unique {
 		output = append(output, entry)
 	}
-	return output
+	return output, nil
 }
 
 type RepoStats struct {

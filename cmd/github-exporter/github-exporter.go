@@ -35,9 +35,12 @@ func main() {
 }
 
 func Main(cmd *cobra.Command, _ []string) {
+	var opts slog.HandlerOptions
+
 	if viper.GetBool("debug") {
-		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug})))
+		opts.Level = slog.LevelDebug
 	}
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, &opts)))
 
 	slog.Info(cmd.Name()+" started", "version", cmd.Version, "cache", viper.GetDuration("git.cache"))
 
