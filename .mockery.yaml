@@ -6,4 +6,7 @@ outpkg: "mocks"
 packages:
   github.com/clambin/github-exporter/internal/collector:
     interfaces:
+      StatClient:
+  github.com/clambin/github-exporter/internal/stats:
+    interfaces:
       GitHubClient:
