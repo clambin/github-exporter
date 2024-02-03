@@ -7,7 +7,6 @@ import (
 	"github.com/clambin/go-common/set"
 	"log/slog"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -29,37 +28,15 @@ func (c Client) GetRepoStats(ctx context.Context, users []string, repos []string
 	}
 	c.Logger.Debug("unique repos", "repos", uniqueRepos)
 
-	repoStats := make([]github.RepoStats, 0, len(uniqueRepos))
+	var p parallel[github.RepoStats]
 
-	type response struct {
-		stats github.RepoStats
-		err   error
+	for i := range uniqueRepos {
+		i := i
+		p.Do(func() (github.RepoStats, error) {
+			return c.getStats(ctx, uniqueRepos[i])
+		})
 	}
-
-	ch := make(chan response)
-
-	go func() {
-		var wg sync.WaitGroup
-		wg.Add(len(uniqueRepos))
-		for i := range uniqueRepos {
-			go func(i int) {
-				defer wg.Done()
-				stats, err := c.getStats(ctx, uniqueRepos[i])
-				ch <- response{stats: stats, err: err}
-			}(i)
-		}
-		wg.Wait()
-		close(ch)
-	}()
-
-	for r := range ch {
-		if r.err != nil {
-			return nil, r.err
-		}
-		repoStats = append(repoStats, r.stats)
-	}
-
-	return repoStats, nil
+	return p.Results()
 }
 
 func (c Client) getUniqueRepoNames(ctx context.Context, users []string, repos []string) ([]string, error) {

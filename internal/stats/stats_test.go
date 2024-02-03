@@ -54,6 +54,7 @@ func TestClient_GetRepoStats(t *testing.T) {
 			users:   []string{"foo"},
 			repos:   nil,
 			wantErr: assert.Error,
+			//want:    []github.RepoStats{},
 		},
 	}
 
