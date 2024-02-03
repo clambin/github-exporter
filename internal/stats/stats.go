@@ -35,6 +35,7 @@ func (c Client) GetRepoStats(ctx context.Context, users []string, repos []string
 		stats github.RepoStats
 		err   error
 	}
+
 	ch := make(chan response)
 
 	go func() {
