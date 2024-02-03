@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/clambin/github-exporter/internal/collector"
-	"github.com/clambin/github-exporter/internal/collector/client"
+	"github.com/clambin/github-exporter/internal/stats"
+	ghc "github.com/clambin/github-exporter/internal/stats/github"
 	"github.com/clambin/go-common/httpclient"
 	"github.com/google/go-github/v58/github"
 	"github.com/prometheus/client_golang/prometheus"
@@ -40,9 +41,9 @@ func Main(cmd *cobra.Command, _ []string) {
 	if viper.GetBool("debug") {
 		opts.Level = slog.LevelDebug
 	}
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, &opts)))
+	logger := slog.New(slog.NewJSONHandler(os.Stderr, &opts))
 
-	slog.Info(cmd.Name()+" started", "version", cmd.Version, "cache", viper.GetDuration("git.cache"))
+	logger.Info(cmd.Name()+" started", "version", cmd.Version, "cache", viper.GetDuration("git.cache"))
 
 	ctx := cmd.Context()
 	ts := oauth2.StaticTokenSource(
@@ -57,18 +58,15 @@ func Main(cmd *cobra.Command, _ []string) {
 	)
 
 	c := collector.Collector{
-		GitHubCache: collector.GitHubCache{
-			Client: &client.Client{
-				Client: github.NewClient(&http.Client{
-					Transport: tp,
-					Timeout:   10 * time.Second},
-				),
-			},
-			Users:           viper.GetStringSlice("repos.user"),
-			Repos:           viper.GetStringSlice("repos.repo"),
-			IncludeArchived: viper.GetBool("repos.archived"),
-			Lifetime:        viper.GetDuration("git.cache"),
+		Client: stats.Client{
+			GitHubClient: (*ghc.Client)(github.NewClient(&http.Client{Transport: tp})),
+			Logger:       logger.With("component", "github"),
 		},
+		Users:           viper.GetStringSlice("repos.user"),
+		Repos:           viper.GetStringSlice("repos.repo"),
+		IncludeArchived: viper.GetBool("repos.archived"),
+		Lifetime:        viper.GetDuration("git.cache"),
+		Logger:          logger.With("component", "collector"),
 	}
 
 	prometheus.MustRegister(tp)
