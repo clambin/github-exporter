@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - gitbhub58
+      - refactor
 
 jobs:
   test:

@@ -4,7 +4,7 @@ on:
   push:
     branches-ignore:
       - main
-      - gitbhub58
+      - refactor
 
   pull_request_target:
 
