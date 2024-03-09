@@ -60,6 +60,8 @@ func TestClient_GetRepoStats(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			gh := mocks.NewGitHubClient(t)
 			tt.setup(gh)
 
@@ -106,6 +108,8 @@ func TestClient_getUniqueRepoNames(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			gh := mocks.NewGitHubClient(t)
 			tt.setup(gh)
 			c := Client{GitHubClient: gh, Logger: slog.Default()}
@@ -176,13 +180,15 @@ func TestClient_getStats(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			gh := mocks.NewGitHubClient(t)
 			tt.setup(gh)
 			c := Client{GitHubClient: gh, Logger: slog.Default()}
+
 			count, err := c.getStats(ctx, tt.repo)
 			tt.wantErr(t, err)
 			assert.Equal(t, tt.want, count)
-
 		})
 	}
 }

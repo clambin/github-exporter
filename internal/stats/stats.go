@@ -31,7 +31,6 @@ func (c Client) GetRepoStats(ctx context.Context, users []string, repos []string
 	var p parallel[github.RepoStats]
 
 	for i := range uniqueRepos {
-		i := i
 		p.Do(func() (github.RepoStats, error) {
 			return c.getStats(ctx, uniqueRepos[i])
 		})

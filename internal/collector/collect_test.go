@@ -7,7 +7,6 @@ import (
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/collector/mocks"
 	"github.com/clambin/github-exporter/internal/stats/github"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"log/slog"
@@ -125,6 +124,8 @@ github_monitor_stars{archived="false",repo="clambin/tado-exporter"} 15
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			gh := mocks.NewStatClient(t)
 			tt.setup(gh)
 			c := collector.Collector{
@@ -135,10 +136,8 @@ github_monitor_stars{archived="false",repo="clambin/tado-exporter"} 15
 				Lifetime:        time.Second,
 				Logger:          slog.Default(),
 			}
-			r := prometheus.NewPedanticRegistry()
-			r.MustRegister(&c)
-			tt.wantErr(t, testutil.GatherAndCompare(r, bytes.NewBufferString(tt.want)))
-			tt.wantErr(t, testutil.GatherAndCompare(r, bytes.NewBufferString(tt.want)))
+			tt.wantErr(t, testutil.CollectAndCompare(&c, bytes.NewBufferString(tt.want)))
+			tt.wantErr(t, testutil.CollectAndCompare(&c, bytes.NewBufferString(tt.want)))
 		})
 	}
 }

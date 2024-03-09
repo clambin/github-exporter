@@ -1,10 +1,10 @@
 module github.com/clambin/github-exporter
 
-go 1.21
+go 1.22
 
 require (
 	github.com/clambin/go-common/httpclient v0.6.0
-	github.com/clambin/go-common/set v0.4.2
+	github.com/clambin/go-common/set v0.4.3
 	github.com/google/go-github/v60 v60.0.0
 	github.com/prometheus/client_golang v1.19.0
 	github.com/spf13/cobra v1.8.0

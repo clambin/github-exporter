@@ -13,8 +13,7 @@ func TestParallel(t *testing.T) {
 
 	var errEven = errors.New("even")
 
-	for i := 0; i < 1000; i++ {
-		i := i
+	for i := range 1000 {
 		p.Do(func() (int, error) {
 			time.Sleep(time.Duration(rand.Intn(10)) * time.Millisecond)
 			var err error
