@@ -2,7 +2,7 @@ package github
 
 import (
 	"context"
-	"github.com/google/go-github/v58/github"
+	"github.com/google/go-github/v60/github"
 )
 
 type RepoStats struct {
