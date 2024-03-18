@@ -51,9 +51,9 @@ func Main(cmd *cobra.Command, _ []string) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	lm := roundtripper.NewLimiterMetrics("github", "monitor")
+	lm := roundtripper.NewLimiterMetrics("github", "exporter")
 	prometheus.MustRegister(lm)
-	rm := roundtripper.NewDefaultRoundTripMetrics("github", "monitor")
+	rm := roundtripper.NewDefaultRoundTripMetrics("github", "exporter")
 	prometheus.MustRegister(rm)
 
 	tp := roundtripper.New(
