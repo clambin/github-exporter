@@ -40,7 +40,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	repoStats, err := c.getStats()
 	if err != nil {
 		c.Logger.Error("failed to collect github statistics", "err", err)
-		ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("github_monitor_error", "Error getting github statistics", nil, nil), err)
+		ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("github_exporter_error", "Error getting github statistics", nil, nil), err)
 		return
 	}
 
