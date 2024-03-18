@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - codecov
+      - http
 
 jobs:
   test:

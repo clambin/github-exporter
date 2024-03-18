@@ -47,26 +47,26 @@ func TestCollector_Collect(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			want: `
-# HELP github_monitor_forks Total number of forks
-# TYPE github_monitor_forks gauge
-github_monitor_forks{archived="false",repo="clambin/github-exporter"} 1
-github_monitor_forks{archived="false",repo="clambin/tado-exporter"} 2
-github_monitor_forks{archived="true",repo="foo/bar"} 3
-# HELP github_monitor_issues Total number of open issues
-# TYPE github_monitor_issues gauge
-github_monitor_issues{archived="false",repo="clambin/github-exporter"} 15
-github_monitor_issues{archived="false",repo="clambin/tado-exporter"} 25
-github_monitor_issues{archived="true",repo="foo/bar"} 5
-# HELP github_monitor_pulls Total number of open pull requests
-# TYPE github_monitor_pulls gauge
-github_monitor_pulls{archived="false",repo="clambin/github-exporter"} 5
-github_monitor_pulls{archived="false",repo="clambin/tado-exporter"} 15
-github_monitor_pulls{archived="true",repo="foo/bar"} 5
-# HELP github_monitor_stars Total number of stars
-# TYPE github_monitor_stars gauge
-github_monitor_stars{archived="false",repo="clambin/github-exporter"} 10
-github_monitor_stars{archived="false",repo="clambin/tado-exporter"} 15
-github_monitor_stars{archived="true",repo="foo/bar"} 5
+# HELP github_exporter_forks Total number of forks
+# TYPE github_exporter_forks gauge
+github_exporter_forks{archived="false",repo="clambin/github-exporter"} 1
+github_exporter_forks{archived="false",repo="clambin/tado-exporter"} 2
+github_exporter_forks{archived="true",repo="foo/bar"} 3
+# HELP github_exporter_issues Total number of open issues
+# TYPE github_exporter_issues gauge
+github_exporter_issues{archived="false",repo="clambin/github-exporter"} 15
+github_exporter_issues{archived="false",repo="clambin/tado-exporter"} 25
+github_exporter_issues{archived="true",repo="foo/bar"} 5
+# HELP github_exporter_pulls Total number of open pull requests
+# TYPE github_exporter_pulls gauge
+github_exporter_pulls{archived="false",repo="clambin/github-exporter"} 5
+github_exporter_pulls{archived="false",repo="clambin/tado-exporter"} 15
+github_exporter_pulls{archived="true",repo="foo/bar"} 5
+# HELP github_exporter_stars Total number of stars
+# TYPE github_exporter_stars gauge
+github_exporter_stars{archived="false",repo="clambin/github-exporter"} 10
+github_exporter_stars{archived="false",repo="clambin/tado-exporter"} 15
+github_exporter_stars{archived="true",repo="foo/bar"} 5
 `,
 		},
 		{
@@ -88,22 +88,22 @@ github_monitor_stars{archived="true",repo="foo/bar"} 5
 			},
 			wantErr: assert.NoError,
 			want: `
-# HELP github_monitor_forks Total number of forks
-# TYPE github_monitor_forks gauge
-github_monitor_forks{archived="false",repo="clambin/github-exporter"} 1
-github_monitor_forks{archived="false",repo="clambin/tado-exporter"} 2
-# HELP github_monitor_issues Total number of open issues
-# TYPE github_monitor_issues gauge
-github_monitor_issues{archived="false",repo="clambin/github-exporter"} 15
-github_monitor_issues{archived="false",repo="clambin/tado-exporter"} 25
-# HELP github_monitor_pulls Total number of open pull requests
-# TYPE github_monitor_pulls gauge
-github_monitor_pulls{archived="false",repo="clambin/github-exporter"} 5
-github_monitor_pulls{archived="false",repo="clambin/tado-exporter"} 15
-# HELP github_monitor_stars Total number of stars
-# TYPE github_monitor_stars gauge
-github_monitor_stars{archived="false",repo="clambin/github-exporter"} 10
-github_monitor_stars{archived="false",repo="clambin/tado-exporter"} 15
+# HELP github_exporter_forks Total number of forks
+# TYPE github_exporter_forks gauge
+github_exporter_forks{archived="false",repo="clambin/github-exporter"} 1
+github_exporter_forks{archived="false",repo="clambin/tado-exporter"} 2
+# HELP github_exporter_issues Total number of open issues
+# TYPE github_exporter_issues gauge
+github_exporter_issues{archived="false",repo="clambin/github-exporter"} 15
+github_exporter_issues{archived="false",repo="clambin/tado-exporter"} 25
+# HELP github_exporter_pulls Total number of open pull requests
+# TYPE github_exporter_pulls gauge
+github_exporter_pulls{archived="false",repo="clambin/github-exporter"} 5
+github_exporter_pulls{archived="false",repo="clambin/tado-exporter"} 15
+# HELP github_exporter_stars Total number of stars
+# TYPE github_exporter_stars gauge
+github_exporter_stars{archived="false",repo="clambin/github-exporter"} 10
+github_exporter_stars{archived="false",repo="clambin/tado-exporter"} 15
 `,
 		},
 		{

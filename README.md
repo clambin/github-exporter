@@ -65,17 +65,16 @@ export GITHUB_EXPORTER_GIT.TOKEN="your-token"
 
 ## Prometheus metrics
 
-| metric                           | type    | description                                          | labels                        |
-|----------------------------------|---------|------------------------------------------------------|-------------------------------|
-| github_monitor_forks             | gauge   | Number of forks                                      | archived, fork, private, repo |
-| github_monitor_issues            | gauge   | Number of open issues raised against the repo        | archived, fork, private, repo |
-| github_monitor_pulls             | gauge   | Number of open pull requests raised against the repo | archived, fork, private, repo |
-| github_monitor_stars             | gauge   | Number of stars                                      | archived, fork, private, repo |
-| github_monitor_api_latency       | summary | Latency of GitHub API calls                          | application, method, path     |
-| github_monitor_api_errors_total  | counter | Number of errors raised by GitHub API calls          | application, method, path     |
-| github_monitor_api_in_flight     | gauge   | Number of GitHub API calls in flight                 | application                   |
-| github_monitor_api_max_in_flight | gauge   | Highest number of GitHub API calls in flight         | application                   |
-
+| metric | type |  labels | help |
+| --- | --- |  --- | --- |
+| github_exporter_api_inflight_current | GAUGE | |current in flight requests |
+| github_exporter_api_inflight_max | GAUGE | |maximum in flight requests |
+| github_exporter_forks | GAUGE | archived, repo|Total number of forks |
+| github_exporter_issues | GAUGE | archived, repo|Total number of open issues |
+| github_exporter_latency | SUMMARY | code, method, path|request latency |
+| github_exporter_pulls | GAUGE | archived, repo|Total number of open pull requests |
+| github_exporter_requests_total | COUNTER | code, method, path|total number of requests |
+| github_exporter_stars | GAUGE | archived, repo|Total number of stars |
 
 ## Authors
 
@@ -84,5 +83,3 @@ export GITHUB_EXPORTER_GIT.TOKEN="your-token"
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-
