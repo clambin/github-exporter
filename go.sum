@@ -4,8 +4,8 @@ github.com/cespare/xxhash/v2 v2.2.0 h1:DC2CZ1Ep5Y4k3ZQ899DldepgrayRUGE6BBZ/cd9Cj
 github.com/cespare/xxhash/v2 v2.2.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/clambin/go-common/cache v0.2.2 h1:Tjb+71+/2ckrZlSbLDYgCEpkS2HwkTRkQ/18oYG+EbE=
 github.com/clambin/go-common/cache v0.2.2/go.mod h1:6DMcBIPTGckXMNQTGfdEMiLAbKqIOWzgk5KNyiJK54M=
-github.com/clambin/go-common/httpclient v0.6.0 h1:zSt9OV8ekXB/LwFwazEO4x8z+9p968nwfDQOmvF784A=
-github.com/clambin/go-common/httpclient v0.6.0/go.mod h1:77y+6LzAKdenkU+vwQFdNKyxs2HhUXEiqYwzS7Q9FKI=
+github.com/clambin/go-common/http v0.0.0-20240318095334-7e041d6f0b48 h1:cfBG2/FgFIM+8yX6qAZKnMxs2CAknu5/l5acz3Sk/Ew=
+github.com/clambin/go-common/http v0.0.0-20240318095334-7e041d6f0b48/go.mod h1:b/p67auwC7iQAF9KfrZZ3X0wqzckR81aQEVHGLI0Qx0=
 github.com/clambin/go-common/set v0.4.3 h1:Sm9lkAJsh82j40RDpfQIziHyHjwr07+KsQF6vgCVXm4=
 github.com/clambin/go-common/set v0.4.3/go.mod h1:Q5GpBoM7B7abNV2Wzys+wQMInBHMoHyh/h0Cn2OmY4A=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=

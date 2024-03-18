@@ -4,7 +4,7 @@ import (
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/stats"
 	ghc "github.com/clambin/github-exporter/internal/stats/github"
-	"github.com/clambin/go-common/httpclient"
+	"github.com/clambin/go-common/http/roundtripper"
 	"github.com/google/go-github/v60/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -51,10 +51,15 @@ func Main(cmd *cobra.Command, _ []string) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	tp := httpclient.NewRoundTripper(
-		httpclient.WithInstrumentedLimiter(25, "github", "monitor", "github-exporter"),
-		httpclient.WithMetrics("github", "monitor", "github-exporter"),
-		httpclient.WithRoundTripper(tc.Transport),
+	lm := roundtripper.NewLimiterMetrics("github", "monitor")
+	prometheus.MustRegister(lm)
+	rm := roundtripper.NewDefaultRoundTripMetrics("github", "monitor")
+	prometheus.MustRegister(rm)
+
+	tp := roundtripper.New(
+		roundtripper.WithInstrumentedLimiter(25, lm),
+		roundtripper.WithInstrumentedRoundTripper(rm),
+		roundtripper.WithRoundTripper(tc.Transport),
 	)
 
 	c := collector.Collector{
@@ -68,8 +73,6 @@ func Main(cmd *cobra.Command, _ []string) {
 		Lifetime:        viper.GetDuration("git.cache"),
 		Logger:          logger.With("component", "collector"),
 	}
-
-	prometheus.MustRegister(tp)
 	prometheus.MustRegister(&c)
 
 	http.Handle("/metrics", promhttp.Handler())
