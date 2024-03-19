@@ -6,6 +6,8 @@ github.com/clambin/go-common/cache v0.2.2 h1:Tjb+71+/2ckrZlSbLDYgCEpkS2HwkTRkQ/1
 github.com/clambin/go-common/cache v0.2.2/go.mod h1:6DMcBIPTGckXMNQTGfdEMiLAbKqIOWzgk5KNyiJK54M=
 github.com/clambin/go-common/http v0.1.1 h1:RX678MLl6d4nK8YVWy2L1g+ShtbZcUJ07oeQFxatu4o=
 github.com/clambin/go-common/http v0.1.1/go.mod h1:wpWW9ix9rAxMW3VIzjALgrV2m0RV6/Cc7nxWcZyyFZA=
+github.com/clambin/go-common/http v0.2.0 h1:VKYmVz+43LdJWEHQtZ7XmuvliGMjBG/9wfC1RxT5zAg=
+github.com/clambin/go-common/http v0.2.0/go.mod h1:wpWW9ix9rAxMW3VIzjALgrV2m0RV6/Cc7nxWcZyyFZA=
 github.com/clambin/go-common/set v0.4.3 h1:Sm9lkAJsh82j40RDpfQIziHyHjwr07+KsQF6vgCVXm4=
 github.com/clambin/go-common/set v0.4.3/go.mod h1:Q5GpBoM7B7abNV2Wzys+wQMInBHMoHyh/h0Cn2OmY4A=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
