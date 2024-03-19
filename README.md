@@ -7,7 +7,7 @@
 Prometheus exporter for GitHub repositories
 
 ## Installation
-Binaries are available on the [release](https://github.com/clambin/github-exporter/releases) page. Docker images are available on [ghcr.io](https://ghcr.io/clambin/github-exporter).
+Binaries are available on the [release](https://github.com/clambin/github-exporter/releases) page. Container images are available on [ghcr.io](https://ghcr.io/clambin/github-exporter).
 
 ## Usage
 ### Command-line options
@@ -70,10 +70,10 @@ export GITHUB_EXPORTER_GIT.TOKEN="your-token"
 | github_exporter_api_inflight_current | GAUGE | |current in flight requests |
 | github_exporter_api_inflight_max | GAUGE | |maximum in flight requests |
 | github_exporter_forks | GAUGE | archived, repo|Total number of forks |
+| github_exporter_http_request_duration_seconds | SUMMARY | code, method, path|http request duration in seconds |
+| github_exporter_http_requests_total | COUNTER | code, method, path|total number of http requests |
 | github_exporter_issues | GAUGE | archived, repo|Total number of open issues |
-| github_exporter_latency | SUMMARY | code, method, path|request latency |
 | github_exporter_pulls | GAUGE | archived, repo|Total number of open pull requests |
-| github_exporter_requests_total | COUNTER | code, method, path|total number of requests |
 | github_exporter_stars | GAUGE | archived, repo|Total number of stars |
 
 ## Authors

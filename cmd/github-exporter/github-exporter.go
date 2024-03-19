@@ -53,7 +53,7 @@ func Main(cmd *cobra.Command, _ []string) {
 
 	lm := roundtripper.NewLimiterMetrics("github", "exporter")
 	prometheus.MustRegister(lm)
-	rm := roundtripper.NewDefaultRoundTripMetrics("github", "exporter")
+	rm := roundtripper.NewDefaultRoundTripMetrics("github", "exporter", "")
 	prometheus.MustRegister(rm)
 
 	tp := roundtripper.New(
