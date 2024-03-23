@@ -4,6 +4,7 @@ import (
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/stats"
 	ghc "github.com/clambin/github-exporter/internal/stats/github"
+	"github.com/clambin/go-common/http/metrics"
 	"github.com/clambin/go-common/http/roundtripper"
 	"github.com/google/go-github/v60/github"
 	"github.com/prometheus/client_golang/prometheus"
@@ -51,20 +52,22 @@ func Main(cmd *cobra.Command, _ []string) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	lm := roundtripper.NewLimiterMetrics("github", "exporter")
-	prometheus.MustRegister(lm)
-	rm := roundtripper.NewDefaultRoundTripMetrics("github", "exporter", "")
-	prometheus.MustRegister(rm)
+	rm := metrics.NewRequestSummaryMetrics("github", "exporter", nil)
+	im1 := metrics.NewInflightMetric("github", "exporter", map[string]string{"stage": "pre"})
+	im2 := metrics.NewInflightMetric("github", "exporter", map[string]string{"stage": "post"})
+	prometheus.MustRegister(rm, im1, im2)
 
 	tp := roundtripper.New(
-		roundtripper.WithInstrumentedLimiter(25, lm),
-		roundtripper.WithInstrumentedRoundTripper(rm),
+		roundtripper.WithInflightMetrics(im1),
+		roundtripper.WithLimiter(25),
+		roundtripper.WithInflightMetrics(im2),
+		roundtripper.WithRequestMetrics(rm),
 		roundtripper.WithRoundTripper(tc.Transport),
 	)
 
 	c := collector.Collector{
 		Client: stats.Client{
-			GitHubClient: (*ghc.Client)(github.NewClient(&http.Client{Transport: tp})),
+			GitHubClient: (*ghc.Client)(github.NewClient(&http.Client{Transport: tp, Timeout: 10 * time.Second})),
 			Logger:       logger.With("component", "github"),
 		},
 		Users:           viper.GetStringSlice("repos.user"),
