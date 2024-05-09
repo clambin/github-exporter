@@ -6,7 +6,7 @@ require (
 	github.com/clambin/go-common/http v0.4.3
 	github.com/clambin/go-common/set v0.4.3
 	github.com/google/go-github/v61 v61.0.0
-	github.com/prometheus/client_golang v1.19.0
+	github.com/prometheus/client_golang v1.19.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
