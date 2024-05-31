@@ -52,9 +52,9 @@ func Main(cmd *cobra.Command, _ []string) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	rm := metrics.NewRequestSummaryMetrics("github", "exporter", nil)
-	im1 := metrics.NewInflightMetric("github", "exporter", map[string]string{"stage": "pre"})
-	im2 := metrics.NewInflightMetric("github", "exporter", map[string]string{"stage": "post"})
+	rm := metrics.NewRequestMetrics(metrics.Options{Namespace: "github", Subsystem: "exporter"})
+	im1 := metrics.NewInflightMetrics("github", "exporter", map[string]string{"stage": "pre"})
+	im2 := metrics.NewInflightMetrics("github", "exporter", map[string]string{"stage": "post"})
 	prometheus.MustRegister(rm, im1, im2)
 
 	tp := roundtripper.New(
