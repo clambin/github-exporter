@@ -10,3 +10,7 @@ packages:
   github.com/clambin/github-exporter/internal/stats:
     interfaces:
       GitHubClient:
+  github.com/clambin/github-exporter/internal/stats/github:
+    interfaces:
+      Repositories:
+      PullRequests:
