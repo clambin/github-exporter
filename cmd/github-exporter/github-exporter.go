@@ -6,7 +6,6 @@ import (
 	ghc "github.com/clambin/github-exporter/internal/stats/github"
 	"github.com/clambin/go-common/http/metrics"
 	"github.com/clambin/go-common/http/roundtripper"
-	"github.com/google/go-github/v62/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
@@ -67,7 +66,7 @@ func Main(cmd *cobra.Command, _ []string) {
 
 	c := collector.Collector{
 		Client: stats.Client{
-			GitHubClient: (*ghc.Client)(github.NewClient(&http.Client{Transport: tp, Timeout: 10 * time.Second})),
+			GitHubClient: ghc.New(tp),
 			Logger:       logger.With("component", "github"),
 		},
 		Users:           viper.GetStringSlice("repos.user"),

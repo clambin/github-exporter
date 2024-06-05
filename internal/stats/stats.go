@@ -16,9 +16,9 @@ type Client struct {
 }
 
 type GitHubClient interface {
-	GetUserReposPage(context.Context, string, int) ([]string, int, error)
+	GetUserRepoNames(context.Context, string) ([]string, error)
 	GetRepoStats(context.Context, string, string) (github.RepoStats, error)
-	GetPullRequestCountPage(context.Context, string, string, int) (int, int, error)
+	GetPullRequestCount(context.Context, string, string) (int, error)
 }
 
 func (c Client) GetRepoStats(ctx context.Context, users []string, repos []string) ([]github.RepoStats, error) {
@@ -39,34 +39,17 @@ func (c Client) GetRepoStats(ctx context.Context, users []string, repos []string
 }
 
 func (c Client) getUniqueRepoNames(ctx context.Context, users []string, repos []string) ([]string, error) {
-	unique := set.New(repos...)
+	uniqueRepoNames := set.New(repos...)
 
 	for _, user := range users {
-		userRepos, err := c.getUserRepoNames(ctx, user)
+		userRepos, err := c.GitHubClient.GetUserRepoNames(ctx, user)
 		if err != nil {
 			return nil, fmt.Errorf("get repos for user %s: %w", user, err)
 		}
-		unique.Add(userRepos...)
+		uniqueRepoNames.Add(userRepos...)
 	}
 
-	return unique.List(), nil
-}
-
-func (c Client) getUserRepoNames(ctx context.Context, user string) ([]string, error) {
-	var repos []string
-	var page int
-	for {
-		repoPage, nextPage, err := c.GitHubClient.GetUserReposPage(ctx, user, page)
-		if err != nil {
-			return nil, err
-		}
-		repos = append(repos, repoPage...)
-		if nextPage == 0 {
-			break
-		}
-		page = nextPage
-	}
-	return repos, nil
+	return uniqueRepoNames.List(), nil
 }
 
 func (c Client) getStats(ctx context.Context, repo string) (github.RepoStats, error) {
@@ -84,29 +67,12 @@ func (c Client) getStats(ctx context.Context, repo string) (github.RepoStats, er
 	if err != nil {
 		return repoStats, err
 	}
-	repoStats.PullRequests, err = c.getPullRequestCount(ctx, user, repo)
+	repoStats.PullRequests, err = c.GitHubClient.GetPullRequestCount(ctx, user, repo)
 	if err != nil {
 		return repoStats, err
 	}
 	repoStats.Issues -= repoStats.PullRequests
 	return repoStats, nil
-}
-
-func (c Client) getPullRequestCount(ctx context.Context, user, repo string) (int, error) {
-	var pullRequestCount int
-	var page int
-	for {
-		count, nextPage, err := c.GitHubClient.GetPullRequestCountPage(ctx, user, repo, page)
-		if err != nil {
-			return 0, err
-		}
-		pullRequestCount += count
-		if nextPage == 0 {
-			break
-		}
-		page = nextPage
-	}
-	return pullRequestCount, nil
 }
 
 func splitFullName(repo string) (string, string, error) {
