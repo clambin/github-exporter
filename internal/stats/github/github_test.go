@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 	"github.com/clambin/github-exporter/internal/stats/github/mocks"
-	"github.com/google/go-github/v62/github"
+	"github.com/google/go-github/v64/github"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -22,9 +22,7 @@ func TestClient_GetUserRepoNames(t *testing.T) {
 			&github.RepositoryListByUserOptions{ListOptions: github.ListOptions{Page: 0, PerPage: recordsPerPage}},
 		).
 		Return(
-			[]*github.Repository{{
-				FullName: constP("user/repo1"),
-			}},
+			[]*github.Repository{{FullName: constP("user/repo1")}},
 			&github.Response{NextPage: 1},
 			nil,
 		)
@@ -35,9 +33,7 @@ func TestClient_GetUserRepoNames(t *testing.T) {
 			&github.RepositoryListByUserOptions{ListOptions: github.ListOptions{Page: 1, PerPage: recordsPerPage}},
 		).
 		Return(
-			[]*github.Repository{{
-				FullName: constP("user/repo2"),
-			}},
+			[]*github.Repository{{FullName: constP("user/repo2")}},
 			&github.Response{NextPage: 0},
 			nil,
 		)
