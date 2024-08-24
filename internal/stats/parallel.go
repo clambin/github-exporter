@@ -18,7 +18,6 @@ func (p *parallel[T]) Do(f func() (T, error)) {
 	go func() {
 		defer p.wg.Done()
 		val, err := f()
-
 		p.lock.Lock()
 		defer p.lock.Unlock()
 		p.err = errors.Join(p.err, err)

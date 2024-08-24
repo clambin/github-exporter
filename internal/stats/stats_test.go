@@ -7,7 +7,6 @@ import (
 	"github.com/clambin/github-exporter/internal/stats/mocks"
 	"github.com/stretchr/testify/assert"
 	"log/slog"
-	"slices"
 	"testing"
 )
 
@@ -70,53 +69,6 @@ func TestClient_GetRepoStats(t *testing.T) {
 			stats, err := c.GetRepoStats(ctx, tt.users, tt.repos)
 			tt.wantErr(t, err)
 			assert.Equal(t, tt.want, stats)
-		})
-	}
-}
-
-func TestClient_getUniqueRepoNames(t *testing.T) {
-	ctx := context.Background()
-	tests := []struct {
-		name    string
-		setup   func(client *mocks.GitHubClient)
-		users   []string
-		repos   []string
-		wantErr assert.ErrorAssertionFunc
-		want    []string
-	}{
-		{
-			name: "success",
-			setup: func(client *mocks.GitHubClient) {
-				client.EXPECT().GetUserRepoNames(ctx, "foo").Return([]string{"foo/bar", "foo/snafu"}, nil)
-			},
-			users:   []string{"foo"},
-			repos:   []string{"foo/alt"},
-			wantErr: assert.NoError,
-			want:    []string{"foo/alt", "foo/bar", "foo/snafu"},
-		},
-		{
-			name: "failure",
-			setup: func(client *mocks.GitHubClient) {
-				client.EXPECT().GetUserRepoNames(ctx, "foo").Return(nil, errors.New("fail"))
-			},
-			users:   []string{"foo"},
-			repos:   []string{"foo/alt"},
-			wantErr: assert.Error,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			gh := mocks.NewGitHubClient(t)
-			tt.setup(gh)
-			c := Client{GitHubClient: gh, Logger: slog.Default()}
-
-			names, err := c.getUniqueRepoNames(ctx, tt.users, tt.repos)
-			tt.wantErr(t, err)
-			slices.Sort(names)
-			assert.Equal(t, tt.want, names)
 		})
 	}
 }

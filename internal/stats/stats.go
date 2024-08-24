@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/clambin/github-exporter/internal/stats/github"
 	"github.com/clambin/go-common/set"
+	"iter"
 	"log/slog"
 	"strings"
 	"time"
@@ -22,34 +23,38 @@ type GitHubClient interface {
 }
 
 func (c Client) GetRepoStats(ctx context.Context, users []string, repos []string) ([]github.RepoStats, error) {
-	uniqueRepos, err := c.getUniqueRepoNames(ctx, users, repos)
-	if err != nil {
-		return nil, err
-	}
-	c.Logger.Debug("unique repos", "repos", uniqueRepos)
-
 	var p parallel[github.RepoStats]
-
-	for i := range uniqueRepos {
+	for repoName, err := range c.uniqueRepoNames(ctx, users, repos) {
+		if err != nil {
+			return nil, err
+		}
+		c.Logger.Debug("repo found", "repo", repoName)
 		p.Do(func() (github.RepoStats, error) {
-			return c.getStats(ctx, uniqueRepos[i])
+			return c.getStats(ctx, repoName)
 		})
 	}
 	return p.Results()
 }
 
-func (c Client) getUniqueRepoNames(ctx context.Context, users []string, repos []string) ([]string, error) {
-	uniqueRepoNames := set.New(repos...)
-
-	for _, user := range users {
-		userRepos, err := c.GitHubClient.GetUserRepoNames(ctx, user)
-		if err != nil {
-			return nil, fmt.Errorf("get repos for user %s: %w", user, err)
+func (c Client) uniqueRepoNames(ctx context.Context, users []string, repos []string) iter.Seq2[string, error] {
+	return func(yield func(string, error) bool) {
+		uniqueRepoNames := set.New(repos...)
+		for _, user := range users {
+			userRepos, err := c.GitHubClient.GetUserRepoNames(ctx, user)
+			if err != nil {
+				yield("", fmt.Errorf("get repos for user %s: %w", user, err))
+				return
+			}
+			for _, userRepo := range userRepos {
+				if !uniqueRepoNames.Contains(userRepo) {
+					if !yield(userRepo, nil) {
+						return
+					}
+					uniqueRepoNames.Add(userRepo)
+				}
+			}
 		}
-		uniqueRepoNames.Add(userRepos...)
 	}
-
-	return uniqueRepoNames.List(), nil
 }
 
 func (c Client) getStats(ctx context.Context, repo string) (github.RepoStats, error) {
