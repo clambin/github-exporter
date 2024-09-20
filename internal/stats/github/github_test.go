@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 	"github.com/clambin/github-exporter/internal/stats/github/mocks"
-	"github.com/google/go-github/v64/github"
+	"github.com/google/go-github/v65/github"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
