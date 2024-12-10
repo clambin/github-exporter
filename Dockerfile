@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build \
     -ldflags="-X main.version=$VERSION" \
     -o github-exporter \
-    cmd/github-exporter/github-exporter.go
+    .
 
 FROM alpine
 

@@ -2,7 +2,7 @@ package github
 
 import (
 	"context"
-	"github.com/google/go-github/v65/github"
+	"github.com/google/go-github/v67/github"
 	"net/http"
 	"time"
 )

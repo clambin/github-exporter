@@ -3,13 +3,13 @@ module github.com/clambin/github-exporter
 go 1.23.0
 
 require (
-	github.com/clambin/go-common/http v0.6.0
+	github.com/clambin/go-common/httputils v0.1.0
 	github.com/clambin/go-common/set v0.4.3
-	github.com/google/go-github/v65 v65.0.0
+	github.com/google/go-github/v67 v67.0.0
 	github.com/prometheus/client_golang v1.20.5
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	golang.org/x/oauth2 v0.24.0
 )
 
