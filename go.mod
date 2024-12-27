@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/clambin/go-common/httputils v0.1.2
 	github.com/clambin/go-common/set v0.4.3
-	github.com/google/go-github/v67 v67.0.0
+	github.com/google/go-github/v68 v68.0.0
 	github.com/prometheus/client_golang v1.20.5
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
