@@ -1,6 +1,7 @@
 module github.com/clambin/github-exporter
 
-go 1.23
+go 1.24
+
 toolchain go1.24.0
 
 require (
@@ -11,7 +12,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/oauth2 v0.25.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
