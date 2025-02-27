@@ -1,12 +1,12 @@
 module github.com/clambin/github-exporter
 
-go 1.23.0
+go 1.24
 
 toolchain go1.24.0
 
 require (
 	github.com/clambin/go-common/httputils v0.1.2
-	github.com/clambin/go-common/set v0.4.3
+	github.com/clambin/go-common/set v0.5.0
 	github.com/google/go-github/v68 v68.0.0
 	github.com/prometheus/client_golang v1.21.0
 	github.com/spf13/cobra v1.9.1
