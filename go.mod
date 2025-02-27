@@ -1,7 +1,8 @@
 module github.com/clambin/github-exporter
 
-go 1.23
-toolchain go1.23.4
+go 1.23.0
+
+toolchain go1.24.0
 
 require (
 	github.com/clambin/go-common/httputils v0.1.2
