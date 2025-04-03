@@ -1,10 +1,10 @@
 package stats
 
 import (
+	"codeberg.org/clambin/go-common/set"
 	"context"
 	"fmt"
 	"github.com/clambin/github-exporter/internal/stats/github"
-	"github.com/clambin/go-common/set"
 	"iter"
 	"log/slog"
 	"strings"

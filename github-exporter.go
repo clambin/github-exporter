@@ -1,11 +1,11 @@
 package main
 
 import (
+	"codeberg.org/clambin/go-common/httputils/metrics"
+	"codeberg.org/clambin/go-common/httputils/roundtripper"
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/stats"
 	ghc "github.com/clambin/github-exporter/internal/stats/github"
-	"github.com/clambin/go-common/httputils/metrics"
-	"github.com/clambin/go-common/httputils/roundtripper"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
