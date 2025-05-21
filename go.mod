@@ -2,8 +2,6 @@ module github.com/clambin/github-exporter
 
 go 1.24
 
-toolchain go1.24.0
-
 require (
 	codeberg.org/clambin/go-common/httputils v0.3.1
 	codeberg.org/clambin/go-common/set v0.6.0
@@ -12,7 +10,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/oauth2 v0.28.0
+	golang.org/x/oauth2 v0.30.0
 )
 
 require (
