@@ -3,7 +3,7 @@ module github.com/clambin/github-exporter
 go 1.24
 
 require (
-	codeberg.org/clambin/go-common/httputils v0.3.1
+	codeberg.org/clambin/go-common/httputils v0.3.2
 	codeberg.org/clambin/go-common/set v0.6.0
 	github.com/google/go-github/v70 v70.0.0
 	github.com/prometheus/client_golang v1.22.0
