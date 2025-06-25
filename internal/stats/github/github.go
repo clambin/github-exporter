@@ -2,9 +2,10 @@ package github
 
 import (
 	"context"
-	"github.com/google/go-github/v70/github"
 	"net/http"
 	"time"
+
+	"github.com/google/go-github/v73/github"
 )
 
 type RepoStats struct {

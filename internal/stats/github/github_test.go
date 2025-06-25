@@ -2,11 +2,12 @@ package github
 
 import (
 	"context"
-	"github.com/clambin/github-exporter/internal/stats/github/mocks"
-	"github.com/google/go-github/v70/github"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/clambin/github-exporter/internal/stats/github/mocks"
+	"github.com/google/go-github/v73/github"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestClient_GetUserRepoNames(t *testing.T) {
