@@ -6,10 +6,10 @@ import (
 )
 
 type parallel[T any] struct {
-	wg     sync.WaitGroup
-	lock   sync.RWMutex
 	err    error
 	result []T
+	wg     sync.WaitGroup
+	lock   sync.RWMutex
 }
 
 func (p *parallel[T]) Do(f func() (T, error)) {

@@ -12,15 +12,15 @@ import (
 var _ prometheus.Collector = &Collector{}
 
 type Collector struct {
+	lastUpdate      time.Time
 	Client          StatClient
+	Logger          *slog.Logger
 	Users           []string
 	Repos           []string
-	IncludeArchived bool
-	Lifetime        time.Duration
-	Logger          *slog.Logger
 	cache           []github.RepoStats
-	lastUpdate      time.Time
+	Lifetime        time.Duration
 	lock            sync.RWMutex
+	IncludeArchived bool
 }
 
 type StatClient interface {

@@ -60,7 +60,7 @@ func (c Client) GetUserReposPage(ctx context.Context, user string, page int) (re
 
 	var repos []*github.Repository
 	var resp *github.Response
-	if repos, resp, err = c.Repositories.ListByUser(ctx, user, &opt); err == nil {
+	if repos, resp, err = c.ListByUser(ctx, user, &opt); err == nil {
 		repoNames = make([]string, len(repos))
 		for i := range repos {
 			repoNames[i] = repos[i].GetFullName()
@@ -73,7 +73,7 @@ func (c Client) GetUserReposPage(ctx context.Context, user string, page int) (re
 
 func (c Client) GetRepoStats(ctx context.Context, user string, repo string) (RepoStats, error) {
 	var repoStats RepoStats
-	r, _, err := c.Repositories.Get(ctx, user, repo)
+	r, _, err := c.Get(ctx, user, repo)
 	if err == nil {
 		repoStats.Name = r.GetName()
 		repoStats.Stars = r.GetStargazersCount()
@@ -102,7 +102,7 @@ func (c Client) GetPullRequestCountPage(ctx context.Context, user string, repo s
 	opt := &github.PullRequestListOptions{ListOptions: github.ListOptions{Page: page, PerPage: recordsPerPage}}
 	var prs []*github.PullRequest
 	var resp *github.Response
-	if prs, resp, err = c.PullRequests.List(ctx, user, repo, opt); err == nil {
+	if prs, resp, err = c.List(ctx, user, repo, opt); err == nil {
 		prCount = len(prs)
 		nextPage = resp.NextPage
 	}

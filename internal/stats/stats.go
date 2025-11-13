@@ -1,14 +1,15 @@
 package stats
 
 import (
-	"codeberg.org/clambin/go-common/set"
 	"context"
 	"fmt"
-	"github.com/clambin/github-exporter/internal/stats/github"
 	"iter"
 	"log/slog"
 	"strings"
 	"time"
+
+	"codeberg.org/clambin/go-common/set"
+	"github.com/clambin/github-exporter/internal/stats/github"
 )
 
 type Client struct {
@@ -40,7 +41,7 @@ func (c Client) uniqueRepoNames(ctx context.Context, users []string, repos []str
 	return func(yield func(string, error) bool) {
 		uniqueRepoNames := set.New(repos...)
 		for _, user := range users {
-			userRepos, err := c.GitHubClient.GetUserRepoNames(ctx, user)
+			userRepos, err := c.GetUserRepoNames(ctx, user)
 			if err != nil {
 				yield("", fmt.Errorf("get repos for user %s: %w", user, err))
 				return
@@ -72,7 +73,7 @@ func (c Client) getStats(ctx context.Context, repo string) (github.RepoStats, er
 	if err != nil {
 		return repoStats, err
 	}
-	repoStats.PullRequests, err = c.GitHubClient.GetPullRequestCount(ctx, user, repo)
+	repoStats.PullRequests, err = c.GetPullRequestCount(ctx, user, repo)
 	if err != nil {
 		return repoStats, err
 	}
