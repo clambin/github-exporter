@@ -3,11 +3,12 @@ package stats
 import (
 	"context"
 	"errors"
+	"log/slog"
+	"testing"
+
 	"github.com/clambin/github-exporter/internal/stats/github"
 	"github.com/clambin/github-exporter/internal/stats/mocks"
 	"github.com/stretchr/testify/assert"
-	"log/slog"
-	"testing"
 )
 
 func TestClient_GetRepoStats(t *testing.T) {

@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"log/slog"
+	"testing"
+	"time"
+
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/collector/mocks"
 	"github.com/clambin/github-exporter/internal/stats/github"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
-	"log/slog"
-	"testing"
-	"time"
 )
 
 func TestCollector_Collect(t *testing.T) {

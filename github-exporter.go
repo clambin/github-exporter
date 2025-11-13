@@ -1,20 +1,21 @@
 package main
 
 import (
+	"log/slog"
+	"net/http"
+	"os"
+	"time"
+
 	"codeberg.org/clambin/go-common/httputils/metrics"
 	"codeberg.org/clambin/go-common/httputils/roundtripper"
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/stats"
-	ghc "github.com/clambin/github-exporter/internal/stats/github"
+	"github.com/clambin/github-exporter/internal/stats/github"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
-	"log/slog"
-	"net/http"
-	"os"
-	"time"
 )
 
 var (
@@ -66,7 +67,7 @@ func Main(cmd *cobra.Command, _ []string) {
 
 	c := collector.Collector{
 		Client: stats.Client{
-			GitHubClient: ghc.New(tp),
+			GitHubClient: github.New(tp),
 			Logger:       logger.With("component", "github"),
 		},
 		Users:           viper.GetStringSlice("repos.user"),

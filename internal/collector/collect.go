@@ -2,11 +2,12 @@ package collector
 
 import (
 	"context"
-	"github.com/clambin/github-exporter/internal/stats/github"
-	"github.com/prometheus/client_golang/prometheus"
 	"log/slog"
 	"sync"
 	"time"
+
+	"github.com/clambin/github-exporter/internal/stats/github"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var _ prometheus.Collector = &Collector{}
