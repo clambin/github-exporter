@@ -1,9 +1,9 @@
 module github.com/clambin/github-exporter
 
-go 1.24
+go 1.24.0
 
 require (
-	codeberg.org/clambin/go-common/httputils v0.3.2
+	codeberg.org/clambin/go-common/httputils v0.4.1
 	codeberg.org/clambin/go-common/set v0.6.0
 	github.com/google/go-github/v73 v73.0.0
 	github.com/prometheus/client_golang v1.23.2
@@ -39,6 +39,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
+	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
