@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	"github.com/clambin/github-exporter/internal/stats/github/mocks"
-	"github.com/google/go-github/v73/github"
+	"github.com/google/go-github/v89/github"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestClient_GetUserRepoNames(t *testing.T) {
-	c := New(http.DefaultTransport)
+	c, _ := New(http.DefaultTransport)
 	r := mocks.NewRepositories(t)
 	c.Repositories = r
 	ctx := context.Background()
@@ -45,7 +45,7 @@ func TestClient_GetUserRepoNames(t *testing.T) {
 }
 
 func TestClient_GetRepoStats(t *testing.T) {
-	c := New(http.DefaultTransport)
+	c, _ := New(http.DefaultTransport)
 
 	r := mocks.NewRepositories(t)
 	c.Repositories = r
@@ -74,7 +74,7 @@ func TestClient_GetRepoStats(t *testing.T) {
 }
 
 func TestClient_GetPullRequestCount(t *testing.T) {
-	c := New(http.DefaultTransport)
+	c, _ := New(http.DefaultTransport)
 	p := mocks.NewPullRequests(t)
 	c.PullRequests = p
 	ctx := context.Background()

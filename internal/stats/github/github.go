@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/go-github/v73/github"
+	"github.com/google/go-github/v89/github"
 )
 
 type RepoStats struct {
@@ -31,12 +31,16 @@ type PullRequests interface {
 	List(context.Context, string, string, *github.PullRequestListOptions) ([]*github.PullRequest, *github.Response, error)
 }
 
-func New(tp http.RoundTripper) *Client {
-	client := github.NewClient(&http.Client{Transport: tp, Timeout: 10 * time.Second})
+func New(tp http.RoundTripper) (*Client, error) {
+	httpClient := http.Client{Transport: tp, Timeout: 10 * time.Second}
+	client, err := github.NewClient(github.WithHTTPClient(&httpClient))
+	if err != nil {
+		return nil, err
+	}
 	return &Client{
 		Repositories: client.Repositories,
 		PullRequests: client.PullRequests,
-	}
+	}, nil
 }
 
 const recordsPerPage = 100

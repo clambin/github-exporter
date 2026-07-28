@@ -73,7 +73,7 @@ type GitHubClient_GetPullRequestCount_Call struct {
 //   - context1 context.Context
 //   - s string
 //   - s1 string
-func (_e *GitHubClient_Expecter) GetPullRequestCount(context1 interface{}, s interface{}, s1 interface{}) *GitHubClient_GetPullRequestCount_Call {
+func (_e *GitHubClient_Expecter) GetPullRequestCount(context1 any, s any, s1 any) *GitHubClient_GetPullRequestCount_Call {
 	return &GitHubClient_GetPullRequestCount_Call{Call: _e.mock.On("GetPullRequestCount", context1, s, s1)}
 }
 
@@ -145,7 +145,7 @@ type GitHubClient_GetRepoStats_Call struct {
 //   - context1 context.Context
 //   - s string
 //   - s1 string
-func (_e *GitHubClient_Expecter) GetRepoStats(context1 interface{}, s interface{}, s1 interface{}) *GitHubClient_GetRepoStats_Call {
+func (_e *GitHubClient_Expecter) GetRepoStats(context1 any, s any, s1 any) *GitHubClient_GetRepoStats_Call {
 	return &GitHubClient_GetRepoStats_Call{Call: _e.mock.On("GetRepoStats", context1, s, s1)}
 }
 
@@ -218,7 +218,7 @@ type GitHubClient_GetUserRepoNames_Call struct {
 // GetUserRepoNames is a helper method to define mock.On call
 //   - context1 context.Context
 //   - s string
-func (_e *GitHubClient_Expecter) GetUserRepoNames(context1 interface{}, s interface{}) *GitHubClient_GetUserRepoNames_Call {
+func (_e *GitHubClient_Expecter) GetUserRepoNames(context1 any, s any) *GitHubClient_GetUserRepoNames_Call {
 	return &GitHubClient_GetUserRepoNames_Call{Call: _e.mock.On("GetUserRepoNames", context1, s)}
 }
 

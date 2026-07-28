@@ -65,9 +65,14 @@ func Main(cmd *cobra.Command, _ []string) {
 		),
 	)
 
+	ghc, err := github.New(tp)
+	if err != nil {
+		logger.Error("failed to create github client", "err", err)
+		os.Exit(1)
+	}
 	c := collector.Collector{
 		Client: stats.Client{
-			GitHubClient: github.New(tp),
+			GitHubClient: ghc,
 			Logger:       logger.With("component", "github"),
 		},
 		Users:           viper.GetStringSlice("repos.user"),

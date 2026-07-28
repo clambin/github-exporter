@@ -75,7 +75,7 @@ type StatClient_GetRepoStats_Call struct {
 //   - context1 context.Context
 //   - strings []string
 //   - strings1 []string
-func (_e *StatClient_Expecter) GetRepoStats(context1 interface{}, strings interface{}, strings1 interface{}) *StatClient_GetRepoStats_Call {
+func (_e *StatClient_Expecter) GetRepoStats(context1 any, strings any, strings1 any) *StatClient_GetRepoStats_Call {
 	return &StatClient_GetRepoStats_Call{Call: _e.mock.On("GetRepoStats", context1, strings, strings1)}
 }
 

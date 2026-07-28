@@ -7,7 +7,7 @@ package mocks
 import (
 	"context"
 
-	"github.com/google/go-github/v73/github"
+	"github.com/google/go-github/v89/github"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -83,7 +83,7 @@ type Repositories_Get_Call struct {
 //   - context1 context.Context
 //   - s string
 //   - s1 string
-func (_e *Repositories_Expecter) Get(context1 interface{}, s interface{}, s1 interface{}) *Repositories_Get_Call {
+func (_e *Repositories_Expecter) Get(context1 any, s any, s1 any) *Repositories_Get_Call {
 	return &Repositories_Get_Call{Call: _e.mock.On("Get", context1, s, s1)}
 }
 
@@ -165,7 +165,7 @@ type Repositories_ListByUser_Call struct {
 //   - context1 context.Context
 //   - s string
 //   - repositoryListByUserOptions *github.RepositoryListByUserOptions
-func (_e *Repositories_Expecter) ListByUser(context1 interface{}, s interface{}, repositoryListByUserOptions interface{}) *Repositories_ListByUser_Call {
+func (_e *Repositories_Expecter) ListByUser(context1 any, s any, repositoryListByUserOptions any) *Repositories_ListByUser_Call {
 	return &Repositories_ListByUser_Call{Call: _e.mock.On("ListByUser", context1, s, repositoryListByUserOptions)}
 }
 
@@ -275,7 +275,7 @@ type PullRequests_List_Call struct {
 //   - s string
 //   - s1 string
 //   - pullRequestListOptions *github.PullRequestListOptions
-func (_e *PullRequests_Expecter) List(context1 interface{}, s interface{}, s1 interface{}, pullRequestListOptions interface{}) *PullRequests_List_Call {
+func (_e *PullRequests_Expecter) List(context1 any, s any, s1 any, pullRequestListOptions any) *PullRequests_List_Call {
 	return &PullRequests_List_Call{Call: _e.mock.On("List", context1, s, s1, pullRequestListOptions)}
 }
 
