@@ -1,6 +1,6 @@
 module github.com/clambin/github-exporter
 
-go 1.25.0
+go 1.26
 
 require (
 	codeberg.org/clambin/go-common/httputils v0.5.0

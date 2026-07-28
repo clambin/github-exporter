@@ -23,7 +23,7 @@ func TestClient_GetUserRepoNames(t *testing.T) {
 			&github.RepositoryListByUserOptions{ListOptions: github.ListOptions{Page: 0, PerPage: recordsPerPage}},
 		).
 		Return(
-			[]*github.Repository{{FullName: constP("user/repo1")}},
+			[]*github.Repository{{FullName: new("user/repo1")}},
 			&github.Response{NextPage: 1},
 			nil,
 		)
@@ -34,7 +34,7 @@ func TestClient_GetUserRepoNames(t *testing.T) {
 			&github.RepositoryListByUserOptions{ListOptions: github.ListOptions{Page: 1, PerPage: recordsPerPage}},
 		).
 		Return(
-			[]*github.Repository{{FullName: constP("user/repo2")}},
+			[]*github.Repository{{FullName: new("user/repo2")}},
 			&github.Response{NextPage: 0},
 			nil,
 		)
@@ -53,12 +53,12 @@ func TestClient_GetRepoStats(t *testing.T) {
 	ctx := context.Background()
 
 	r.EXPECT().Get(ctx, "user", "repo").Return(&github.Repository{
-		Owner:           &github.User{Name: constP("user")},
-		Name:            constP("repo"),
-		ForksCount:      constP(1),
-		OpenIssuesCount: constP(2),
-		StargazersCount: constP(4),
-		Archived:        constP(true),
+		Owner:           &github.User{Name: new("user")},
+		Name:            new("repo"),
+		ForksCount:      new(1),
+		OpenIssuesCount: new(2),
+		StargazersCount: new(4),
+		Archived:        new(true),
 	}, nil, nil)
 
 	repos, err := c.GetRepoStats(ctx, "user", "repo")
@@ -107,8 +107,4 @@ func TestClient_GetPullRequestCount(t *testing.T) {
 	prs, err := c.GetPullRequestCount(ctx, "user", "repo")
 	assert.NoError(t, err)
 	assert.Equal(t, 2, prs)
-}
-
-func constP[T any](val T) *T {
-	return &val
 }

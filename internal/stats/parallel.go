@@ -14,9 +14,7 @@ type parallel[T any] struct {
 
 func (p *parallel[T]) Do(f func() (T, error)) {
 	// we don't need to limit concurrent calls, as the calling app uses a limiting round tripper
-	p.wg.Add(1)
-	go func() {
-		defer p.wg.Done()
+	p.wg.Go(func() {
 		val, err := f()
 		p.lock.Lock()
 		defer p.lock.Unlock()
@@ -24,7 +22,7 @@ func (p *parallel[T]) Do(f func() (T, error)) {
 		if err == nil {
 			p.result = append(p.result, val)
 		}
-	}()
+	})
 }
 
 func (p *parallel[T]) Results() ([]T, error) {
