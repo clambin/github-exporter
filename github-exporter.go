@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"codeberg.org/clambin/go-common/httputils/metrics"
-	"codeberg.org/clambin/go-common/httputils/roundtripper"
 	"github.com/clambin/github-exporter/internal/collector"
 	"github.com/clambin/github-exporter/internal/stats"
 	"github.com/clambin/github-exporter/internal/stats/github"
+	"github.com/clambin/github-exporter/limiter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
@@ -57,12 +57,12 @@ func Main(cmd *cobra.Command, _ []string) {
 	im2 := metrics.NewInflightMetrics("github", "exporter", map[string]string{"stage": "post"})
 	prometheus.MustRegister(rm, im1, im2)
 
-	tp := roundtripper.New(
-		roundtripper.WithInflightMetrics(im1),
-		roundtripper.WithLimiter(25),
-		roundtripper.WithInflightMetrics(im2),
-		roundtripper.WithRequestMetrics(rm),
-		roundtripper.WithRoundTripper(tc.Transport),
+	tp := im1.RoundTripper(
+		limiter.NewLimiter(25).RoundTripper(
+			im2.RoundTripper(
+				rm.RoundTripper(tc.Transport),
+			),
+		),
 	)
 
 	c := collector.Collector{

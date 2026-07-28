@@ -3,7 +3,7 @@ module github.com/clambin/github-exporter
 go 1.25.0
 
 require (
-	codeberg.org/clambin/go-common/httputils v0.4.1
+	codeberg.org/clambin/go-common/httputils v0.5.0
 	codeberg.org/clambin/go-common/set v0.6.0
 	github.com/google/go-github/v73 v73.0.0
 	github.com/prometheus/client_golang v1.24.1
@@ -11,10 +11,10 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/oauth2 v0.36.0
+	golang.org/x/sync v0.22.0
 )
 
 require (
-	codeberg.org/clambin/go-common/cache v0.9.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -37,7 +37,6 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
