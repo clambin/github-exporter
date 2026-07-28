@@ -2,10 +2,12 @@ package stats
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"iter"
 	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"codeberg.org/clambin/go-common/set"
@@ -24,17 +26,40 @@ type GitHubClient interface {
 }
 
 func (c Client) GetRepoStats(ctx context.Context, users []string, repos []string) ([]github.RepoStats, error) {
-	var p parallel[github.RepoStats]
+	var wg sync.WaitGroup
+	type result struct {
+		stats github.RepoStats
+		err   error
+	}
+	ch := make(chan result)
+
+	var count int
 	for repoName, err := range c.uniqueRepoNames(ctx, users, repos) {
 		if err != nil {
 			return nil, err
 		}
 		c.Logger.Debug("repo found", "repo", repoName)
-		p.Do(func() (github.RepoStats, error) {
-			return c.getStats(ctx, repoName)
+		count++
+		wg.Go(func() {
+			stats, err := c.getStats(ctx, repoName)
+			ch <- result{stats: stats, err: err}
 		})
 	}
-	return p.Results()
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	errs := make([]error, 0, count)
+	stats := make([]github.RepoStats, 0, count)
+	for r := range ch {
+		if r.err == nil {
+			stats = append(stats, r.stats)
+		}
+		errs = append(errs, r.err)
+	}
+	return stats, errors.Join(errs...)
 }
 
 func (c Client) uniqueRepoNames(ctx context.Context, users []string, repos []string) iter.Seq2[string, error] {
